@@ -1,0 +1,3811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="theme-color" content="#FFE5D4" />
+<title>The Lantern Keeper</title>
+<script src="vendor/jszip.min.js" defer></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root {
+    --bg: #FFE5D4;
+    --sky-1: #FFE5D4;
+    --sky-2: #FFC9A0;
+    --sky-3: #FFB084;
+    --ground: #B8DDA8;
+    --ground-2: #94C98A;
+    --ink: #3A2342;
+    --ink-soft: #6B5577;
+    --card: #FFF8F0;
+    --warm: #FFB8A0;
+    --truth: #FFE066;
+    --truth-glow: #FFD23F;
+    --kindness: #FF9EB5;
+    --kindness-glow: #FF7FA0;
+    --courage: #7FE0D6;
+    --courage-glow: #4FCFC2;
+    --lantern-body: #5A3A6B;
+    --lantern-glow: rgba(255, 220, 150, 0.6);
+    --shadow: 0 4px 14px rgba(60, 30, 80, 0.12);
+    --shadow-deep: 0 10px 30px rgba(60, 30, 80, 0.25);
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+  body {
+    font-family: -apple-system, "Avenir Next", "Quicksand", "Comic Sans MS", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    font-size: 16px;
+  }
+
+  #app {
+    max-width: 480px;
+    margin: 0 auto;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: var(--card);
+    overflow: hidden;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    padding: 12px 16px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card);
+    z-index: 5;
+    flex-shrink: 0;
+  }
+  .place {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 17px;
+  }
+  .place-icon { font-size: 22px; }
+  .day-pill {
+    background: #F0E4F5;
+    color: var(--ink-soft);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  /* ===== SCENE ===== */
+  .scene {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(to bottom,
+      var(--sky-1) 0%,
+      var(--sky-2) 45%,
+      var(--sky-3) 70%);
+  }
+  .sun {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #FFE89C 30%, #FFCB6B 70%);
+    box-shadow: 0 0 40px rgba(255, 200, 120, 0.7);
+    pointer-events: none;
+  }
+  .cloud {
+    position: absolute;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 32px;
+    pointer-events: none;
+    animation: drift 60s linear infinite;
+  }
+  .cloud.c1 { top: 18%; left: -10%; animation-duration: 80s; }
+  .cloud.c2 { top: 12%; left: -10%; animation-duration: 110s; animation-delay: -40s; font-size: 26px; }
+  @keyframes drift {
+    from { transform: translateX(0); }
+    to { transform: translateX(560px); }
+  }
+
+  .ground {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 38%;
+    background: linear-gradient(to bottom, var(--ground) 0%, var(--ground-2) 100%);
+    border-top: 3px solid rgba(60, 100, 60, 0.15);
+  }
+  .ground::before {
+    content: '🌼  🌱  🌷  🌿  🌼  🌱  🌷  🌿  🌼';
+    position: absolute;
+    top: 14px;
+    left: 0;
+    right: 0;
+    font-size: 13px;
+    letter-spacing: 4px;
+    text-align: center;
+    opacity: 0.85;
+    pointer-events: none;
+  }
+
+  .porch {
+    position: absolute;
+    bottom: 22%;
+    right: 8%;
+    width: 110px;
+    height: 70px;
+    background: #E8C9A0;
+    border-radius: 8px 8px 0 0;
+    border: 2px solid #C9A878;
+    border-bottom: none;
+    pointer-events: none;
+  }
+  .porch::before {
+    content: '';
+    position: absolute;
+    top: -28px;
+    left: -8px;
+    right: -8px;
+    height: 36px;
+    background: #B8704A;
+    clip-path: polygon(0 100%, 50% 0, 100% 100%);
+  }
+  .porch::after {
+    content: '🪟';
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 22px;
+  }
+
+  .pond {
+    position: absolute;
+    bottom: 14%;
+    left: 6%;
+    width: 90px;
+    height: 28px;
+    background: radial-gradient(ellipse, #8FD4E8 50%, #6FB8D0 100%);
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.4);
+  }
+
+  /* characters */
+  .char {
+    position: absolute;
+    bottom: 28%;
+    font-size: 52px;
+    line-height: 1;
+    transition: left 0.7s ease-in-out, transform 0.2s ease;
+    cursor: pointer;
+    z-index: 2;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .char.bobbing {
+    animation: bob 1.6s ease-in-out infinite;
+  }
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+  .char.walking {
+    animation: walking 0.3s ease-in-out infinite;
+  }
+  @keyframes walking {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-6px) rotate(3deg); }
+  }
+  .char-label {
+    position: absolute;
+    bottom: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink);
+    background: rgba(255, 248, 240, 0.85);
+    padding: 1px 6px;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0.7;
+  }
+  .char-bram { left: 8%; bottom: 32%; }
+  .char-hettie { left: 72%; bottom: 36%; }
+  .char-lulu { left: 38%; font-size: 36px; }
+  .char-wren { left: 50%; font-size: 44px; }
+
+  .interact-hint {
+    position: absolute;
+    top: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    animation: hint 1.2s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes hint {
+    0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.7; }
+    50% { transform: translateX(-50%) translateY(-4px); opacity: 1; }
+  }
+
+  /* firefly companion (reward) */
+  .firefly {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #FFF59D;
+    box-shadow: 0 0 12px 4px rgba(255, 245, 157, 0.8);
+    pointer-events: none;
+    z-index: 3;
+    animation: firefly-drift 6s ease-in-out infinite;
+  }
+  @keyframes firefly-drift {
+    0%, 100% { transform: translate(0, 0); opacity: 0.6; }
+    25% { transform: translate(20px, -15px); opacity: 1; }
+    50% { transform: translate(-10px, -30px); opacity: 0.8; }
+    75% { transform: translate(15px, -10px); opacity: 1; }
+  }
+
+  /* ===== MISTWOOD ===== */
+  .scene.mistwood {
+    background: linear-gradient(to bottom, #2D3550 0%, #4A5775 45%, #6C7B96 75%);
+  }
+  .scene.mistwood .ground {
+    background: linear-gradient(to bottom, #5B7A6F 0%, #3F5A52 100%);
+    border-top: 3px solid rgba(20, 40, 30, 0.3);
+  }
+  .scene.mistwood .ground::before {
+    content: '🍂  🌿  🍄  🌱  🍂  🌿  🍄  🌱  🍂';
+    opacity: 0.7;
+  }
+  .moon {
+    position: absolute;
+    top: 35px;
+    right: 50px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #FFF8E1 20%, #E8D89C 70%, #C9B26E 100%);
+    box-shadow: 0 0 30px rgba(255, 240, 180, 0.5);
+    pointer-events: none;
+  }
+  .star {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #FFF;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+    pointer-events: none;
+    animation: twinkle 3s ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+  .tree {
+    position: absolute;
+    font-size: 60px;
+    pointer-events: none;
+    filter: brightness(0.7) saturate(0.9);
+  }
+  .tree.t1 { bottom: 30%; left: 30%; font-size: 50px; }
+  .tree.t2 { bottom: 32%; left: 50%; font-size: 44px; }
+  .tree.t3 { bottom: 30%; left: 18%; font-size: 56px; }
+  .lodge {
+    position: absolute;
+    bottom: 22%;
+    right: 6%;
+    width: 110px;
+    height: 70px;
+    background: #6B4A3A;
+    border-radius: 6px 6px 0 0;
+    border: 2px solid #4A3024;
+    border-bottom: none;
+    pointer-events: none;
+    box-shadow: 0 0 18px rgba(255, 200, 100, 0.3);
+  }
+  .lodge::before {
+    content: '';
+    position: absolute;
+    top: -28px;
+    left: -8px;
+    right: -8px;
+    height: 36px;
+    background: #3A2418;
+    clip-path: polygon(0 100%, 50% 0, 100% 100%);
+  }
+  .lodge::after {
+    content: '🪟';
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 22px;
+    filter: brightness(1.4) saturate(1.3);
+  }
+  .pond-mist {
+    position: absolute;
+    bottom: 14%;
+    left: 8%;
+    width: 90px;
+    height: 28px;
+    background: radial-gradient(ellipse, #4A6A7E 50%, #2F4858 100%);
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.15), 0 0 12px rgba(127, 224, 214, 0.3);
+  }
+
+  /* ===== TIDESCHOOL ===== */
+  .scene.tideschool {
+    background: linear-gradient(to bottom, #FFF1D6 0%, #FFE3B0 45%, #FFD8A0 75%);
+  }
+  .scene.tideschool .ground {
+    background: linear-gradient(to bottom, #F4D89C 0%, #E5BF7A 100%);
+    border-top: 3px solid rgba(120, 80, 40, 0.15);
+  }
+  .scene.tideschool .ground::before {
+    content: '🐚  🌿  🦀  ✨  🐚  🌿  🦀  ✨  🐚';
+    opacity: 0.75;
+  }
+  .sea {
+    position: absolute;
+    bottom: 38%;
+    left: 0; right: 0;
+    height: 38px;
+    background: linear-gradient(to bottom, #8BC8E0 0%, #6FB0CC 100%);
+    pointer-events: none;
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.4);
+  }
+  .sea::after {
+    content: '〰️ 〰️ 〰️ 〰️ 〰️ 〰️ 〰️';
+    position: absolute;
+    top: 4px;
+    left: 0; right: 0;
+    text-align: center;
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 6px;
+    pointer-events: none;
+  }
+  .dock {
+    position: absolute;
+    bottom: 36%;
+    left: 5%; right: 5%;
+    height: 16px;
+    background: linear-gradient(to bottom, #C9985C 0%, #A07050 60%, #6B4830 100%);
+    border-radius: 2px;
+    pointer-events: none;
+    box-shadow: 0 3px 6px rgba(60, 30, 10, 0.3);
+  }
+  .dock::before {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+    background-image: repeating-linear-gradient(to right, transparent 0, transparent 30px, rgba(60, 30, 10, 0.3) 30px, rgba(60, 30, 10, 0.3) 32px);
+    pointer-events: none;
+  }
+  .gull {
+    position: absolute;
+    font-size: 18px;
+    pointer-events: none;
+    animation: drift 70s linear infinite;
+    filter: hue-rotate(0deg) brightness(1);
+  }
+  .gull.g1 { top: 14%; left: -10%; animation-delay: -10s; }
+  .gull.g2 { top: 22%; left: -10%; animation-delay: -45s; font-size: 14px; }
+
+  /* ===== TRAVEL BUTTON (in header) ===== */
+  .travel-btn {
+    background: linear-gradient(135deg, #7E8AA0, #5A6B85);
+    color: #FFF;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: transform 0.1s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: inherit;
+  }
+  .travel-btn:active { transform: scale(0.95); }
+  .travel-btn .arrow {
+    font-size: 14px;
+  }
+  .tideschool-btn {
+    background: linear-gradient(135deg, #FFC07A, #F49060);
+    color: #FFF;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: transform 0.1s ease;
+    display: none;
+    align-items: center;
+    gap: 4px;
+    font-family: inherit;
+    animation: pulse-soft 2.2s ease-in-out infinite;
+  }
+  .tideschool-btn.show { display: flex; }
+  .tideschool-btn:active { transform: scale(0.95); animation: none; }
+  @keyframes pulse-soft {
+    0%, 100% { box-shadow: var(--shadow); }
+    50% { box-shadow: 0 4px 18px rgba(255, 180, 100, 0.5); }
+  }
+
+  /* ===== BRIDGE OVERLAY ===== */
+  .bridge-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, #0F1230 0%, #232752 50%, #3D4070 100%);
+    z-index: 8;
+    display: none;
+    overflow: hidden;
+  }
+  .bridge-overlay.show {
+    display: block;
+    animation: fade-in 0.5s ease;
+  }
+  .bridge-overlay .bridge-stars {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .bridge-overlay .bridge-deck {
+    position: absolute;
+    bottom: 30%;
+    left: -10%;
+    right: -10%;
+    height: 18px;
+    background: linear-gradient(to right,
+      transparent 0%,
+      #5C4A7E 15%,
+      #7A5FA0 50%,
+      #5C4A7E 85%,
+      transparent 100%);
+    border-radius: 6px;
+    box-shadow: 0 -2px 12px rgba(255, 220, 150, 0.2);
+  }
+  .bridge-overlay .bridge-rope {
+    position: absolute;
+    bottom: calc(30% + 18px);
+    left: -10%;
+    right: -10%;
+    height: 30px;
+    border-top: 2px dashed rgba(255, 240, 200, 0.3);
+    pointer-events: none;
+  }
+  .bridge-overlay .bridge-trail {
+    position: absolute;
+    bottom: calc(30% + 22px);
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 14px;
+    letter-spacing: 10px;
+    color: rgba(255, 240, 180, 0.7);
+    animation: trail-glow 1.4s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes trail-glow {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+  .bridge-overlay .bridge-wren {
+    position: absolute;
+    bottom: calc(30% + 12px);
+    font-size: 42px;
+    animation: cross-bridge 5s linear forwards;
+    z-index: 2;
+  }
+  .bridge-overlay.reverse .bridge-wren {
+    animation: cross-bridge-reverse 5s linear forwards;
+  }
+  @keyframes cross-bridge {
+    0% { left: -10%; transform: translateY(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateY(-6px); }
+    20%, 40%, 60%, 80% { transform: translateY(0); }
+    100% { left: 100%; transform: translateY(0); }
+  }
+  @keyframes cross-bridge-reverse {
+    0% { left: 100%; transform: translateY(0) scaleX(-1); }
+    10%, 30%, 50%, 70%, 90% { transform: translateY(-6px) scaleX(-1); }
+    20%, 40%, 60%, 80% { transform: translateY(0) scaleX(-1); }
+    100% { left: -10%; transform: translateY(0) scaleX(-1); }
+  }
+  .bridge-overlay .bridge-label {
+    position: absolute;
+    top: 18%;
+    left: 0; right: 0;
+    text-align: center;
+    color: #FFF;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    opacity: 0.85;
+  }
+  .bridge-overlay .bridge-label .from {
+    opacity: 0.5;
+    font-size: 13px;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  /* ===== LANTERN BAR ===== */
+  .lantern-bar {
+    flex-shrink: 0;
+    background: var(--card);
+    padding: 10px 14px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-top: 2px solid #F0E4F5;
+    box-shadow: 0 -4px 12px rgba(60, 30, 80, 0.06);
+    z-index: 5;
+  }
+  .lantern {
+    width: 56px;
+    height: 70px;
+    position: relative;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .lantern-top {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 8px;
+    background: var(--lantern-body);
+    border-radius: 4px 4px 0 0;
+  }
+  .lantern-handle {
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 12px;
+    border: 2px solid var(--lantern-body);
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+  }
+  .lantern-body {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 46px;
+    height: 54px;
+    background: linear-gradient(to bottom, rgba(90, 58, 107, 0.85), rgba(58, 35, 66, 0.95));
+    border-radius: 14px 14px 18px 18px;
+    overflow: hidden;
+    box-shadow: 0 0 12px var(--lantern-glow), inset 0 2px 6px rgba(0,0,0,0.3);
+  }
+  .lantern-glass {
+    position: absolute;
+    top: 5px;
+    left: 4px;
+    right: 4px;
+    bottom: 5px;
+    background: linear-gradient(to bottom, rgba(255, 230, 180, 0.25), rgba(255, 200, 130, 0.4));
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    padding-bottom: 4px;
+  }
+  .flame {
+    width: 8px;
+    height: 14px;
+    border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
+    transform-origin: center bottom;
+    animation: flicker 1.6s ease-in-out infinite;
+    transition: opacity 0.6s ease, box-shadow 0.6s ease, height 0.6s ease;
+    opacity: 0.5;
+  }
+  .flame.truth { background: var(--truth); box-shadow: 0 0 6px var(--truth-glow); }
+  .flame.kindness { background: var(--kindness); box-shadow: 0 0 6px var(--kindness-glow); animation-delay: -0.5s; }
+  .flame.courage { background: var(--courage); box-shadow: 0 0 6px var(--courage-glow); animation-delay: -1s; }
+  @keyframes flicker {
+    0%, 100% { transform: scaleY(1) scaleX(1); }
+    25% { transform: scaleY(1.15) scaleX(0.92); }
+    50% { transform: scaleY(0.92) scaleX(1.05); }
+    75% { transform: scaleY(1.1) scaleX(0.95); }
+  }
+
+  .flame-labels {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .flame-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .flame-name {
+    width: 60px;
+    color: var(--ink-soft);
+  }
+  .flame-bar {
+    flex: 1;
+    height: 8px;
+    background: #F0E4F5;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .flame-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s ease;
+  }
+  .flame-bar-fill.truth { background: linear-gradient(to right, var(--truth), var(--truth-glow)); }
+  .flame-bar-fill.kindness { background: linear-gradient(to right, var(--kindness), var(--kindness-glow)); }
+  .flame-bar-fill.courage { background: linear-gradient(to right, var(--courage), var(--courage-glow)); }
+
+  .rest-btn {
+    background: var(--warm);
+    color: var(--ink);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: var(--shadow);
+    transition: transform 0.1s ease;
+  }
+  .rest-btn:active { transform: scale(0.95); }
+
+  /* ===== MODAL / DIALOGUE ===== */
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(40, 20, 60, 0.45);
+    backdrop-filter: blur(2px);
+    z-index: 10;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    animation: fade-in 0.3s ease;
+  }
+  .overlay.open { display: flex; }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+  .sheet {
+    background: var(--card);
+    width: 100%;
+    max-width: 480px;
+    border-radius: 24px 24px 0 0;
+    padding: 22px 22px 28px;
+    box-shadow: var(--shadow-deep);
+    animation: slide-up 0.35s cubic-bezier(0.2, 0.8, 0.3, 1.1);
+    max-height: 88%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  @keyframes slide-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .speaker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .speaker-avatar {
+    font-size: 38px;
+    line-height: 1;
+  }
+  .speaker-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+
+  .narration {
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--ink);
+    margin: 0 0 18px;
+    font-style: italic;
+  }
+  .dialogue {
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--ink);
+    margin: 0 0 18px;
+    font-weight: 500;
+  }
+  .dialogue::before { content: '\201C'; }
+  .dialogue::after { content: '\201D'; }
+
+  .continue-btn {
+    background: var(--ink);
+    color: var(--card);
+    border: none;
+    padding: 12px 20px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    width: 100%;
+    box-shadow: var(--shadow);
+    transition: transform 0.1s ease;
+  }
+  .continue-btn:active { transform: scale(0.98); }
+
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .choice {
+    background: var(--card);
+    border: 2px solid #EEE0F2;
+    color: var(--ink);
+    padding: 14px 16px;
+    border-radius: 16px;
+    font-size: 15px;
+    line-height: 1.4;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow);
+  }
+  .choice:active {
+    transform: scale(0.98);
+    background: #FFF1E6;
+  }
+
+  .flame-change {
+    margin-top: 18px;
+    padding: 12px;
+    background: linear-gradient(to right, rgba(255, 224, 102, 0.15), rgba(255, 158, 181, 0.15), rgba(127, 224, 214, 0.15));
+    border-radius: 12px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-align: center;
+    font-weight: 600;
+  }
+  .flame-change .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 8px;
+    margin: 0 3px;
+    font-weight: 700;
+  }
+  .pill.up.truth { background: var(--truth); color: #6B5400; }
+  .pill.up.kindness { background: var(--kindness); color: #7A2A40; }
+  .pill.up.courage { background: var(--courage); color: #1F5F58; }
+  .pill.down { background: #EEE0F2; color: var(--ink-soft); }
+
+  /* welcome intro */
+  .welcome-sheet {
+    text-align: center;
+  }
+  .welcome-sheet h1 {
+    font-size: 24px;
+    margin: 6px 0 4px;
+    color: var(--ink);
+  }
+  .welcome-sheet .subtitle {
+    color: var(--ink-soft);
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .welcome-sheet .intro-lantern {
+    margin: 18px auto;
+    width: 70px;
+    height: 88px;
+    position: relative;
+  }
+  .welcome-sheet .intro-lantern .lantern-body {
+    width: 60px;
+    height: 68px;
+  }
+  .welcome-sheet .intro-text {
+    text-align: left;
+    margin: 18px 0;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+  .welcome-sheet .intro-text strong { color: var(--ink); }
+
+  /* ===== KEEPSAKE BOX ===== */
+  .keepsake-btn {
+    background: linear-gradient(135deg, #F49A8C 0%, #D9696B 100%);
+    color: #FFF;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: transform 0.1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .keepsake-btn:active { transform: scale(0.95); }
+  .keepsake-btn .badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: var(--gold, #F6C84C);
+    color: var(--ink);
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  /* Toast notification on unlock */
+  .keepsake-toast {
+    position: absolute;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: linear-gradient(135deg, #FFEED4 0%, #FFD7B8 100%);
+    color: var(--ink);
+    padding: 12px 18px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 6px 24px rgba(60, 30, 80, 0.25);
+    z-index: 18;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 88%;
+    border: 2px solid rgba(255, 200, 150, 0.6);
+  }
+  .keepsake-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+    cursor: pointer;
+  }
+  .keepsake-toast .icon {
+    font-size: 22px;
+    animation: gift-pop 1.2s ease-out;
+  }
+  @keyframes gift-pop {
+    0%   { transform: scale(0.4) rotate(-15deg); }
+    50%  { transform: scale(1.2) rotate(10deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+
+  /* Keepsake Box sheet content */
+  .keepsake-box {
+    text-align: left;
+  }
+  .keepsake-box h1 {
+    font-size: 22px;
+    margin: 4px 0 2px;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .keepsake-box .stats {
+    color: var(--ink-soft);
+    font-size: 13px;
+    margin-bottom: 18px;
+  }
+  .lesson-card {
+    background: var(--card);
+    border: 2px solid #F0E4F5;
+    border-radius: 16px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .lesson-card.unlocked {
+    border-color: rgba(244, 154, 140, 0.45);
+    background: linear-gradient(135deg, #FFFCF8 0%, #FFF1E8 100%);
+  }
+  .lesson-card.locked {
+    opacity: 0.55;
+    background: #F7F3F5;
+  }
+  .lesson-card:active { transform: scale(0.99); }
+  .lesson-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .lesson-icon {
+    font-size: 26px;
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    background: rgba(244, 154, 140, 0.15);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lesson-card.locked .lesson-icon {
+    background: rgba(150, 130, 160, 0.15);
+    filter: grayscale(0.5);
+  }
+  .lesson-meta { flex: 1; min-width: 0; }
+  .lesson-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .lesson-short {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.3;
+  }
+  .lesson-count {
+    background: var(--accent, #FF8FB3);
+    color: #FFF;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+  .lesson-card.locked .lesson-count {
+    background: #C8B8D0;
+  }
+
+  .lesson-detail {
+    background: linear-gradient(135deg, #FFFDF8 0%, #FFF5EC 100%);
+    border-radius: 18px;
+    padding: 20px;
+    margin-top: 10px;
+    border: 2px solid rgba(244, 154, 140, 0.3);
+    box-shadow: 0 2px 8px rgba(244, 154, 140, 0.1);
+  }
+  .lesson-detail .from {
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .lesson-detail .letter {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink);
+    margin-bottom: 14px;
+    font-family: "Avenir Next", "Georgia", serif;
+    font-style: italic;
+  }
+  .lesson-detail video {
+    width: 100%;
+    border-radius: 12px;
+    background: #000;
+    margin-bottom: 12px;
+  }
+  .lesson-detail .video-placeholder {
+    background: rgba(255, 200, 160, 0.2);
+    border: 2px dashed rgba(244, 154, 140, 0.5);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .lesson-detail .video-placeholder strong {
+    color: var(--ink);
+    display: block;
+    margin-bottom: 4px;
+  }
+  .lesson-detail .earned-list {
+    font-size: 11px;
+    color: var(--ink-soft);
+    border-top: 1px solid rgba(244, 154, 140, 0.2);
+    padding-top: 10px;
+  }
+  .lesson-card.locked .lesson-detail-hint {
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-top: 8px;
+  }
+
+  /* category section headers in keepsake box */
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--ink-soft);
+    margin: 22px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1.5px dashed rgba(150, 130, 160, 0.3);
+  }
+  .category-header:first-of-type { margin-top: 6px; }
+  .category-header .cat-icon { font-size: 17px; }
+  .category-header .cat-count {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: rgba(150, 130, 160, 0.15);
+    padding: 2px 8px;
+    border-radius: 8px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  /* Reflection (her voice) recording UI */
+  .reflection-sheet { padding-bottom: 6px; }
+  .reflection-prompt {
+    text-align: center;
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin: 0 0 22px;
+    line-height: 1.5;
+  }
+  .rec-btn {
+    background: linear-gradient(135deg, #FFB084 0%, #FF8C5A 100%);
+    color: #FFF;
+    border: none;
+    padding: 18px 22px;
+    border-radius: 22px;
+    font-weight: 700;
+    font-size: 17px;
+    cursor: pointer;
+    width: 100%;
+    box-shadow: 0 6px 18px rgba(255, 140, 90, 0.35);
+    transition: transform 0.1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-family: inherit;
+    margin-bottom: 10px;
+  }
+  .rec-btn:active { transform: scale(0.98); }
+  .rec-btn .mic { font-size: 26px; }
+
+  .rec-skip {
+    background: transparent;
+    border: none;
+    color: var(--ink-soft);
+    font-size: 13px;
+    padding: 10px;
+    cursor: pointer;
+    width: 100%;
+    font-family: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .rec-active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 0;
+  }
+  .rec-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #E0394C;
+    box-shadow: 0 0 0 0 rgba(224, 57, 76, 0.7);
+    animation: rec-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes rec-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(224, 57, 76, 0.7); }
+    70% { box-shadow: 0 0 0 16px rgba(224, 57, 76, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(224, 57, 76, 0); }
+  }
+  .rec-timer {
+    font-size: 32px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+    letter-spacing: 2px;
+  }
+  .rec-hint {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-style: italic;
+    text-align: center;
+  }
+  .rec-stop {
+    background: var(--ink);
+    color: #FFF;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 18px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: inherit;
+  }
+  .rec-stop:active { transform: scale(0.96); }
+
+  .reflections-list {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(244, 154, 140, 0.25);
+  }
+  .reflections-list .label {
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .reflection-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(255, 200, 160, 0.18);
+    border-radius: 12px;
+    margin-bottom: 6px;
+  }
+  .reflection-item audio {
+    flex: 1;
+    height: 32px;
+  }
+  .reflection-item .when {
+    font-size: 11px;
+    color: var(--ink-soft);
+    flex-shrink: 0;
+  }
+  .add-reflection-btn {
+    background: rgba(255, 200, 160, 0.25);
+    color: var(--ink);
+    border: 2px dashed rgba(244, 154, 140, 0.5);
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 8px;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .add-reflection-btn:active { transform: scale(0.98); }
+
+  .gated-video-note {
+    background: linear-gradient(135deg, rgba(255, 200, 160, 0.2) 0%, rgba(244, 154, 140, 0.15) 100%);
+    border: 2px solid rgba(244, 154, 140, 0.35);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 14px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .gated-video-note strong { display: block; margin-bottom: 6px; }
+  .gated-video-note .unlock-btn {
+    background: linear-gradient(135deg, #FFB084 0%, #FF8C5A 100%);
+    color: #FFF;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 10px;
+    box-shadow: 0 3px 10px rgba(255, 140, 90, 0.3);
+    font-family: inherit;
+  }
+  .gated-video-note .unlock-btn:active { transform: scale(0.98); }
+
+  /* ===== ADMIN PANEL ===== */
+  .admin-sheet h1 {
+    font-size: 18px;
+    color: var(--ink);
+    margin: 0 0 4px;
+  }
+  .admin-sheet .subtitle {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+  }
+  .admin-stats {
+    background: #F7F3F8;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .admin-stats .stat-row {
+    display: flex;
+    justify-content: space-between;
+  }
+  .admin-stats .stat-label { color: var(--ink-soft); }
+  .admin-section {
+    margin-bottom: 18px;
+  }
+  .admin-section h3 {
+    font-size: 11px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin: 0 0 8px;
+    font-weight: 700;
+  }
+  .admin-btn {
+    background: var(--card);
+    border: 2px solid #E5DCEA;
+    color: var(--ink);
+    padding: 12px 14px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    transition: transform 0.1s ease, border-color 0.15s ease;
+  }
+  .admin-btn:active { transform: scale(0.98); border-color: var(--accent-2, #A78BFA); }
+  .admin-btn .icon { font-size: 22px; flex-shrink: 0; }
+  .admin-btn .body { flex: 1; }
+  .admin-btn .body .sub {
+    display: block;
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  .admin-btn:disabled,
+  .admin-btn.disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .admin-status {
+    font-size: 12px;
+    color: var(--ink-soft);
+    background: #F0E4F5;
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-top: 10px;
+    text-align: center;
+  }
+  .admin-status.ok { background: #D8F0DA; color: #1F5F24; }
+  .admin-status.err { background: #FBDCDC; color: #8A2828; }
+
+  .gdrive-setup {
+    background: #F7F3F8;
+    border: 1px dashed rgba(150, 130, 160, 0.5);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .gdrive-setup h4 {
+    font-size: 12px;
+    margin: 0 0 6px;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .gdrive-setup ol {
+    margin: 6px 0 10px;
+    padding-left: 22px;
+  }
+  .gdrive-setup li { margin-bottom: 4px; }
+  .gdrive-setup a {
+    color: #4F47A6;
+    text-decoration: underline;
+    word-break: break-all;
+  }
+  .gdrive-setup code {
+    background: rgba(150, 130, 160, 0.15);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: "SF Mono", Menlo, monospace;
+  }
+  .gdrive-setup input.client-id {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1.5px solid rgba(150, 130, 160, 0.4);
+    font-size: 12px;
+    font-family: "SF Mono", Menlo, monospace;
+    margin-top: 6px;
+    box-sizing: border-box;
+  }
+  .gdrive-setup button.save-id {
+    background: var(--ink);
+    color: var(--card);
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 8px;
+    font-family: inherit;
+  }
+  .gdrive-connected-info {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+  }
+  .gdrive-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .gdrive-actions button {
+    flex: 1;
+    font-size: 11px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(150, 130, 160, 0.4);
+    background: var(--card);
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* day transition */
+  .day-fade {
+    position: absolute;
+    inset: 0;
+    background: var(--ink);
+    z-index: 20;
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--card);
+    font-size: 22px;
+    font-weight: 700;
+    transition: opacity 1s ease;
+  }
+  .day-fade.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="place">
+      <span class="place-icon" id="place-icon">☀️</span>
+      <span id="place-name">Sunmeadow</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
+      <button class="tideschool-btn" id="tideschool-btn">
+        <span>🏝</span><span>Tideschool today!</span>
+      </button>
+      <button class="travel-btn" id="travel-btn">
+        <span id="travel-label">🌙 Mistwood</span>
+        <span class="arrow">→</span>
+      </button>
+      <div class="day-pill" id="day-pill">Day 1</div>
+    </div>
+  </header>
+
+  <div class="scene" id="scene">
+    <div id="bg-decor"></div>
+    <div class="ground" id="ground"></div>
+    <div id="npcs"></div>
+    <div class="char" data-char="wren" id="wren" data-x="50" style="font-size:44px;">
+      🦊
+    </div>
+  </div>
+
+  <div class="bridge-overlay" id="bridge-overlay">
+    <div class="bridge-stars" id="bridge-stars"></div>
+    <div class="bridge-label" id="bridge-label"></div>
+    <div class="bridge-rope"></div>
+    <div class="bridge-deck"></div>
+    <div class="bridge-trail">✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦</div>
+    <div class="bridge-wren">🦊</div>
+  </div>
+
+  <div class="lantern-bar">
+    <div class="lantern" id="lantern">
+      <div class="lantern-handle"></div>
+      <div class="lantern-top"></div>
+      <div class="lantern-body">
+        <div class="lantern-glass">
+          <div class="flame truth" id="flame-truth"></div>
+          <div class="flame kindness" id="flame-kindness"></div>
+          <div class="flame courage" id="flame-courage"></div>
+        </div>
+      </div>
+    </div>
+    <div class="flame-labels">
+      <div class="flame-row">
+        <span class="flame-name">Truth</span>
+        <div class="flame-bar"><div class="flame-bar-fill truth" id="bar-truth"></div></div>
+      </div>
+      <div class="flame-row">
+        <span class="flame-name">Kindness</span>
+        <div class="flame-bar"><div class="flame-bar-fill kindness" id="bar-kindness"></div></div>
+      </div>
+      <div class="flame-row">
+        <span class="flame-name">Courage</span>
+        <div class="flame-bar"><div class="flame-bar-fill courage" id="bar-courage"></div></div>
+      </div>
+    </div>
+    <button class="keepsake-btn" id="keepsake-btn" title="Keepsake Box">
+      🎁
+      <span class="badge" id="keepsake-badge" style="display:none;">0</span>
+    </button>
+    <button class="rest-btn" id="rest-btn">😴<br>Rest</button>
+  </div>
+
+  <div class="keepsake-toast" id="keepsake-toast">
+    <span class="icon">🎁</span>
+    <span id="keepsake-toast-text">New keepsake from family</span>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="sheet" id="sheet"></div>
+  </div>
+
+  <div class="day-fade" id="day-fade"></div>
+
+</div>
+
+<script>
+'use strict';
+
+const SAVE_KEY = 'lantern-keeper-v1';
+
+const defaultState = {
+  flames: { truth: 50, kindness: 50, courage: 50 },
+  day: 1,
+  scenesPlayed: {},
+  firstRun: true,
+  location: 'sunmeadow',
+  lastIsland: 'sunmeadow',
+};
+
+function isTideschoolDay() {
+  return state.day % 3 === 0;
+}
+
+/* ============ KEEPSAKES (cross-game-ready) ============ */
+// Lesson definitions — the SAME prompts as KEEPSAKE_PROMPTS.md, embedded here so
+// the Keepsake Box can show a written "letter" even before family records videos.
+const LESSONS = [
+  { id: 'L1', icon: '🕊️', name: 'Holding both truths', short: 'You chose to hold both people in your heart at once.',
+    hint: 'When someone tries to make you pick a side between two people you love.',
+    speaker: 'a grandparent', letter: "Hi Arianna. I heard you said 'both are true' today, when somebody tried to make you pick a side. That is a kind of wisdom most grown-ups never quite learn — that you can love two people, and they can each love you in their own way, and your heart can hold all of it at once. Nobody gets to make that smaller. I'm so proud of you. Love you." },
+  { id: 'L2', icon: '🌱', name: 'Kind no', short: 'You said no — and you said it gently.',
+    hint: 'When you say no to something without being unkind.',
+    speaker: 'Daddy', letter: "Hey love. You said no today — and you said it gently. You didn't pretend, and you didn't snap. That's one of the hardest things a person ever learns. The bravest grown-ups I know do exactly what you just did. Your no is allowed. Your yes means more because of it. Love you, Arianna." },
+  { id: 'L3', icon: '🤝', name: 'Sitting with someone alone', short: 'You sat with somebody who was sitting on their own.',
+    hint: 'When you choose company for someone who has been left out.',
+    speaker: 'a family friend', letter: "Arianna. You sat with somebody today who was sitting on their own. I want you to know how much that matters. Most people walk past. You didn't. That small thing you did — that's the thing that makes the world a kinder place. Thank you. I love you." },
+  { id: 'L4', icon: '💗', name: 'Listening to your own heart', short: 'You noticed what your heart was telling you, and listened.',
+    hint: 'When you pay attention to your own feelings before acting.',
+    speaker: 'Daddy', letter: "Sweetheart. You noticed today what your heart was telling you, and you listened to it instead of pushing through. That little quiet voice inside you — that's yours. It always knows. The more you listen to it, the louder and clearer it gets. Keep listening, Arianna. Love you." },
+  { id: 'L5', icon: '🌙', name: 'Companionable silence', short: 'You sat with somebody and didn\'t try to fix anything.',
+    hint: 'When you stay with someone quietly, without needing words.',
+    speaker: 'a quiet uncle', letter: "Hi Arianna. You sat with somebody today and didn't try to fix anything. You just stayed. That's a kind of love most people don't know how to give. Sometimes the kindest thing is just to be there. You knew that today. I love you." },
+  { id: 'L6', icon: '⭐️', name: 'Standing up', short: 'You said the true thing out loud when silence was easier.',
+    hint: 'When you defend someone or speak up for what\'s right.',
+    speaker: 'an aunt', letter: "Hey Arianna. You stood up today. Quietly, kindly — but you said the true thing out loud when it would have been easier to be silent. That takes more courage than most adults have. I'm so proud. Love you." },
+  { id: 'L7', icon: '🌷', name: 'Forgiving someone who slipped', short: 'Somebody slipped, and you let them in again.',
+    hint: 'When you accept an apology and let closeness back in.',
+    speaker: 'a grandparent', letter: "Arianna. Somebody said something not-kind today, and they were sorry, and you let them in again. Forgiveness isn't pretending it didn't happen — it's choosing to let the closeness back in. That's a strong thing to do. Love you, sweetheart." },
+  { id: 'L8', icon: '🔦', name: 'Truth that costs', short: 'You told the truth even though the easy thing was to make something up.',
+    hint: 'When you choose honesty even when it\'s harder.',
+    speaker: 'Daddy', letter: "Hey love. You told the truth today, even though the easy thing would have been to make something up. People won't always thank you for that — but the ones who matter will. And your own heart will. I love you, Arianna." },
+  { id: 'L9', icon: '🐢', name: 'Asking and listening', short: 'You went and listened to somebody older today.',
+    hint: 'When you ask for wisdom or sit with someone who has lived a long time.',
+    speaker: 'a grandparent', letter: "Hello, my Arianna. You went and listened to somebody older today. There is no weakness in that, ever. Asking is the strongest thing a person can do. And the ones we ask — we love being asked. I love you, little one." },
+  { id: 'L10', icon: '🌼', name: 'Small kindness', short: 'A small kind thing nobody made a fuss about.',
+    hint: 'Little kindnesses — feeding, helping, petting, being gentle.',
+    speaker: 'a cousin', letter: "Hey Arianna. The small kind thing you did today — the one nobody made a fuss about — those are the ones I notice. The world runs on those. Keep doing them. I love you." },
+  { id: 'M1', icon: '📅', name: 'First full week', short: 'A whole week with the lantern.',
+    hint: 'Reach Day 7.', milestone: true,
+    speaker: 'Daddy', letter: "Arianna. A whole week with the lantern. Look at how it glows. That's all you. Every little choice. I'm so proud of you. Love you." },
+  { id: 'M2', icon: '🏮', name: 'Lantern fully bright', short: 'All three flames bright for the first time.',
+    hint: 'Reach Truth, Kindness, and Courage all at 75 or above.', milestone: true,
+    speaker: 'a grandparent', letter: "Look at that lantern, Arianna. All three flames bright. Your grandmother would be so proud — and so am I. That light is yours. Nobody can take it. Keep tending it. Love you forever." },
+  { id: 'M3', icon: '🌉', name: 'Five bridges crossed', short: 'Five trips between Sunmeadow and Mistwood.',
+    hint: 'Cross the starlit bridge five times.', milestone: true,
+    speaker: 'Daddy', letter: "Hi love. Five times across the bridge now. You know what I notice? You carry yourself both ways. Same Arianna, same lantern, both places. That's the thing nobody can mess with. Love you." },
+];
+
+// Lessons grouped into categories for the Keepsake Box
+const LESSON_CATEGORIES = [
+  { id: 'self',       icon: '🌱', name: 'Holding your own',    lessons: ['L1', 'L2', 'L4', 'L8'] },
+  { id: 'others',     icon: '🤝', name: 'Standing with others', lessons: ['L3', 'L5', 'L6', 'L10'] },
+  { id: 'repair',     icon: '🌷', name: 'Repair',               lessons: ['L7', 'L9'] },
+  { id: 'milestones', icon: '🏮', name: 'Milestones',           lessons: ['M1', 'M2', 'M3'] },
+];
+
+const KEEPSAKES_KEY = 'novacode_keepsakes';
+
+function loadKeepsakes() {
+  try {
+    return JSON.parse(localStorage.getItem(KEEPSAKES_KEY) || '{}');
+  } catch (e) { return {}; }
+}
+function saveKeepsakes(ks) {
+  try { localStorage.setItem(KEEPSAKES_KEY, JSON.stringify(ks)); } catch (e) {}
+}
+
+// Tracks runtime counters (e.g., for milestones)
+function loadCounters() {
+  try { return JSON.parse(localStorage.getItem('lantern_keeper_counters') || '{}'); }
+  catch (e) { return {}; }
+}
+function saveCounters(c) {
+  try { localStorage.setItem('lantern_keeper_counters', JSON.stringify(c)); } catch (e) {}
+}
+let counters = loadCounters();
+
+// Returns true if this was the lesson's first-ever earn
+function unlockKeepsake(lessonId, ctx) {
+  const ks = loadKeepsakes();
+  const isFirstTime = !ks[lessonId];
+  if (!ks[lessonId]) ks[lessonId] = [];
+  ks[lessonId].push({
+    at: new Date().toISOString(),
+    game: 'lantern-keeper',
+    ...(ctx || {}),
+  });
+  saveKeepsakes(ks);
+  updateKeepsakeBadge();
+  return isFirstTime;
+}
+
+let pendingReflections = [];
+
+function unlockKeepsakes(arr, ctx) {
+  if (!arr || !arr.length) return;
+  const firstTimeIds = [];
+  arr.forEach(id => {
+    if (unlockKeepsake(id, ctx)) firstTimeIds.push(id);
+  });
+  if (firstTimeIds.length > 0) {
+    // Show a combined toast for first-time unlocks
+    showKeepsakeToast(firstTimeIds[0], firstTimeIds.length);
+    // Queue first one for reflection — only one per "burst" so she's not overwhelmed
+    if (pendingReflections.length === 0) pendingReflections.push(firstTimeIds[0]);
+  } else if (arr.length > 0) {
+    // Repeat earn — small acknowledgment toast for the first lesson in the batch
+    showKeepsakeToast(arr[0], 0);
+  }
+}
+
+/* ============ INDEXEDDB FOR HER REFLECTION RECORDINGS ============ */
+const DB_NAME = 'novacode_reflections';
+const STORE = 'reflections';
+let _dbPromise = null;
+function openDB() {
+  if (_dbPromise) return _dbPromise;
+  _dbPromise = new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onerror = () => reject(req.error);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(STORE)) {
+        const store = db.createObjectStore(STORE, { keyPath: 'id' });
+        store.createIndex('lessonId', 'lessonId', { unique: false });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+  });
+  return _dbPromise;
+}
+async function saveReflection(lessonId, blob, mimeType) {
+  const db = await openDB();
+  const id = `${lessonId}-${Date.now()}`;
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    tx.objectStore(STORE).put({ id, lessonId, blob, mimeType, at: new Date().toISOString() });
+    tx.oncomplete = () => resolve(id);
+    tx.onerror = () => reject(tx.error);
+  });
+}
+async function listReflections(lessonId) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readonly');
+    const req = tx.objectStore(STORE).getAll();
+    req.onsuccess = () => {
+      const all = req.result || [];
+      const filtered = lessonId ? all.filter(r => r.lessonId === lessonId) : all;
+      filtered.sort((a, b) => a.at.localeCompare(b.at));
+      resolve(filtered);
+    };
+    req.onerror = () => reject(req.error);
+  });
+}
+async function hasAnyReflection(lessonId) {
+  const list = await listReflections(lessonId);
+  return list.length > 0;
+}
+
+/* ============ MEDIA RECORDER (audio only for v1) ============ */
+let mediaRecorder = null;
+let recordedChunks = [];
+let recordingStream = null;
+function isRecordingSupported() {
+  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+}
+async function startRecording() {
+  recordingStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+  const mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm'
+             : MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4'
+             : '';
+  mediaRecorder = new MediaRecorder(recordingStream, mime ? { mimeType: mime } : {});
+  recordedChunks = [];
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+  };
+  mediaRecorder.start();
+  return mime || 'audio/webm';
+}
+function stopRecording() {
+  return new Promise((resolve) => {
+    if (!mediaRecorder || mediaRecorder.state === 'inactive') return resolve(null);
+    mediaRecorder.onstop = () => {
+      const type = mediaRecorder.mimeType || 'audio/webm';
+      const blob = new Blob(recordedChunks, { type });
+      if (recordingStream) recordingStream.getTracks().forEach(t => t.stop());
+      mediaRecorder = null;
+      recordedChunks = [];
+      recordingStream = null;
+      resolve({ blob, type });
+    };
+    mediaRecorder.stop();
+  });
+}
+
+let toastTimer = null;
+// firstCount: number of new lessons in this burst (0 = repeat earn, no badge)
+function showKeepsakeToast(lessonId, firstCount) {
+  const lesson = LESSONS.find(l => l.id === lessonId);
+  if (!lesson) return;
+  const toast = document.getElementById('keepsake-toast');
+  const text = document.getElementById('keepsake-toast-text');
+  if (firstCount > 0) {
+    const more = firstCount > 1 ? ` <em>+${firstCount - 1} more</em>` : '';
+    text.innerHTML = `<strong>${lesson.icon} ${lesson.name}</strong>${more} · tap to add your voice`;
+  } else {
+    text.innerHTML = `<strong>${lesson.icon} ${lesson.name}</strong> · earned again`;
+  }
+  toast.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 4500);
+}
+
+function updateKeepsakeBadge() {
+  const ks = loadKeepsakes();
+  const total = Object.values(ks).reduce((s, arr) => s + (arr?.length || 0), 0);
+  const unique = Object.keys(ks).length;
+  const badge = document.getElementById('keepsake-badge');
+  if (unique > 0) {
+    badge.textContent = unique;
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// Check milestone conditions and unlock if newly met
+function checkMilestones() {
+  const ks = loadKeepsakes();
+  // M1: first full week
+  if (state.day >= 7 && !ks.M1) unlockKeepsake('M1', { trigger: 'day-7' });
+  // M2: all three flames ≥ 75
+  if (state.flames.truth >= 75 && state.flames.kindness >= 75 && state.flames.courage >= 75 && !ks.M2) {
+    unlockKeepsake('M2', { trigger: 'all-bright' });
+  }
+  // M3: 5 bridges crossed
+  if ((counters.bridgeCrossings || 0) >= 5 && !ks.M3) unlockKeepsake('M3', { trigger: 'five-bridges' });
+}
+
+let state = loadState();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return structuredClone(defaultState);
+    const parsed = JSON.parse(raw);
+    return { ...structuredClone(defaultState), ...parsed };
+  } catch (e) {
+    return structuredClone(defaultState);
+  }
+}
+
+function saveState() {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+
+function clampFlame(v) { return Math.max(0, Math.min(100, v)); }
+
+function adjustFlames(deltas) {
+  for (const k of ['truth', 'kindness', 'courage']) {
+    if (deltas[k] != null) {
+      state.flames[k] = clampFlame(state.flames[k] + deltas[k]);
+    }
+  }
+  saveState();
+  renderFlames();
+  checkFireflyReward();
+}
+
+function renderFlames() {
+  for (const k of ['truth', 'kindness', 'courage']) {
+    const pct = state.flames[k];
+    const bar = document.getElementById('bar-' + k);
+    bar.style.width = pct + '%';
+    const flame = document.getElementById('flame-' + k);
+    const opacity = 0.25 + (pct / 100) * 0.75;
+    flame.style.opacity = opacity;
+    flame.style.height = (10 + (pct / 100) * 10) + 'px';
+    const glowVar = k === 'truth' ? '--truth-glow' : k === 'kindness' ? '--kindness-glow' : '--courage-glow';
+    const glowColor = getComputedStyle(document.documentElement).getPropertyValue(glowVar).trim();
+    const glowSize = 4 + (pct / 100) * 10;
+    flame.style.boxShadow = `0 0 ${glowSize}px ${glowColor}`;
+  }
+}
+
+function renderDay() {
+  document.getElementById('day-pill').textContent = 'Day ' + state.day;
+}
+
+let firefly = null;
+function checkFireflyReward() {
+  const allBright = state.flames.truth >= 75 && state.flames.kindness >= 75 && state.flames.courage >= 75;
+  if (allBright && !firefly) {
+    firefly = document.createElement('div');
+    firefly.className = 'firefly';
+    firefly.style.bottom = '60%';
+    firefly.style.left = '40%';
+    document.getElementById('scene').appendChild(firefly);
+  } else if (!allBright && firefly) {
+    firefly.remove();
+    firefly = null;
+  }
+}
+
+/* ============ WALKING ============ */
+function moveWrenTo(xPercent) {
+  const wren = document.getElementById('wren');
+  const currentX = parseFloat(wren.dataset.x);
+  if (Math.abs(currentX - xPercent) < 2) return Promise.resolve();
+  wren.classList.add('walking');
+  wren.classList.remove('bobbing');
+  wren.style.left = xPercent + '%';
+  wren.dataset.x = xPercent;
+  return new Promise(resolve => {
+    setTimeout(() => {
+      wren.classList.remove('walking');
+      wren.classList.add('bobbing');
+      resolve();
+    }, 700);
+  });
+}
+
+/* ============ SCENE / DIALOGUE ENGINE ============ */
+const overlay = document.getElementById('overlay');
+const sheet = document.getElementById('sheet');
+
+function openSheet(html) {
+  sheet.innerHTML = html;
+  overlay.classList.add('open');
+  sheet.scrollTop = 0;
+}
+function closeSheet() {
+  overlay.classList.remove('open');
+  // After any close, check if a reflection should auto-open
+  setTimeout(tryOpenPendingReflection, 500);
+}
+function tryOpenPendingReflection() {
+  if (overlay.classList.contains('open')) return; // something else opened
+  if (pendingReflections.length === 0) return;
+  const lessonId = pendingReflections.shift();
+  startReflectionFlow(lessonId);
+}
+
+overlay.addEventListener('click', (e) => {
+  if (e.target === overlay) {
+    // do nothing; require explicit close
+  }
+});
+
+function flameChangeHTML(deltas) {
+  const parts = [];
+  for (const k of ['truth', 'kindness', 'courage']) {
+    const d = deltas[k];
+    if (!d) continue;
+    if (d > 0) {
+      parts.push(`<span class="pill up ${k}">+${d} ${cap(k)}</span>`);
+    } else {
+      parts.push(`<span class="pill down">${d} ${cap(k)}</span>`);
+    }
+  }
+  if (!parts.length) return '';
+  return `<div class="flame-change">${parts.join(' ')}</div>`;
+}
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+function playScene(scene, onComplete) {
+  let beatIndex = 0;
+  let chosenBranch = null;
+  let finished = false;
+
+  function advance() {
+    if (finished) return;
+    const beats = chosenBranch ? chosenBranch.beats : scene.beats;
+    if (beatIndex >= beats.length) {
+      finished = true;
+      if (chosenBranch) {
+        adjustFlames(chosenBranch.flames || {});
+        state.scenesPlayed[scene.id] = (state.scenesPlayed[scene.id] || 0) + 1;
+        saveState();
+        // Unlock keepsakes tied to this branch
+        unlockKeepsakes(chosenBranch.keepsakes, { scene: scene.id });
+      }
+      checkMilestones();
+      closeSheet();
+      if (onComplete) onComplete();
+      return;
+    }
+    const beat = beats[beatIndex];
+    beatIndex++;
+    renderBeat(beat, scene);
+  }
+
+  function renderBeat(beat, scene) {
+    let html = '';
+    if (beat.speaker) {
+      html += `<div class="speaker">
+        <div class="speaker-avatar">${beat.speakerAvatar || ''}</div>
+        <div class="speaker-name">${beat.speaker}</div>
+      </div>`;
+    }
+    if (beat.narrate) {
+      html += `<p class="narration">${beat.narrate}</p>`;
+    }
+    if (beat.say) {
+      html += `<p class="dialogue">${beat.say}</p>`;
+    }
+    if (beat.choices) {
+      html += `<div class="choices">`;
+      beat.choices.forEach((c, i) => {
+        html += `<button class="choice" data-i="${i}">${c.text}</button>`;
+      });
+      html += `</div>`;
+    } else {
+      const isLast = chosenBranch
+        ? beatIndex >= chosenBranch.beats.length
+        : beatIndex >= scene.beats.length;
+      const label = isLast ? (chosenBranch ? 'Goodnight ✨' : 'Continue') : 'Continue';
+      html += `<button class="continue-btn" id="next-btn">${label}</button>`;
+    }
+    if (beat.flameChange) {
+      html += flameChangeHTML(beat.flameChange);
+    }
+    openSheet(html);
+
+    if (beat.choices) {
+      sheet.querySelectorAll('.choice').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const i = parseInt(btn.dataset.i, 10);
+          chosenBranch = beat.choices[i];
+          beatIndex = 0;
+          advance();
+        });
+      });
+    } else {
+      document.getElementById('next-btn').addEventListener('click', advance);
+    }
+  }
+
+  advance();
+}
+
+/* ============ SCENES ============ */
+const scenes = {
+  hettie_loyalty: {
+    id: 'hettie_loyalty',
+    beats: [
+      {
+        speaker: 'Auntie Hettie',
+        speakerAvatar: '👩‍🍳',
+        narrateOptions: [
+          "The sun is going down over Sunmeadow. Hettie is sitting on the porch with a hairbrush. She pats the seat beside her.",
+          "Hettie is on the porch step, the smell of bread still in her apron. She holds up the silver hairbrush when she sees you, and pats the seat beside her.",
+          "The kitchen light is on behind her. Hettie sits on the porch with the brush across her knee, watching the last of the sun. She nods you over.",
+        ],
+      },
+      {
+        speaker: 'Auntie Hettie',
+        speakerAvatar: '👩‍🍳',
+        sayOptions: [
+          "Come and sit, little one. Let me brush out the tangles before bed.",
+          "Come here, my love. We've got some knots to get out before sleep.",
+          "Sit down, sweet one. Bedtime hair — you know the rules.",
+        ],
+      },
+      {
+        speaker: 'Auntie Hettie',
+        speakerAvatar: '👩‍🍳',
+        narrateOptions: [
+          "She hums for a moment as the brush moves gently. Then her humming stops.",
+          "She hums a low tune you half-remember. Then the humming trails off and she's quiet for a beat.",
+          "The brush moves in slow, careful strokes. She hums something. Then she doesn't.",
+        ],
+      },
+      {
+        speaker: 'Auntie Hettie',
+        speakerAvatar: '👩‍🍳',
+        sayOptions: [
+          "Mm... you know, when you're over at Mistwood, Uncle Finn doesn't brush your hair properly, does he? He doesn't really pay attention to you. Not like I do.",
+          "You know, little one... I worry about you over at Mistwood. Uncle Finn — he means well, I suppose. But he doesn't really notice you the way I do, does he?",
+          "Mm. I bet Uncle Finn doesn't sit and brush your hair like this. He's more of a 'leave them to it' sort, isn't he. You must feel a bit lonely over there.",
+          "Hmm. Tell me — when you're across the bridge, does Uncle Finn actually stop and notice you? Really notice? I don't think he does, you know.",
+        ],
+        choices: [
+          {
+            text: "“You're right. He doesn't care like you do.”",
+            flames: { truth: -8, kindness: -2, courage: -5 },
+            beats: [
+              {
+                narrateOptions: [
+                  "The words slip out easily. Hettie nods, but something inside you feels small, like a little stone has settled in your chest. You're not sure it's true.",
+                  "It comes out quick — too quick. Hettie smiles, satisfied. But your chest feels heavy, like you've said something that wasn't quite yours.",
+                  "You say it. Hettie squeezes your shoulder. And inside, something quiet you usually trust goes very still.",
+                ],
+              },
+              {
+                narrateOptions: [
+                  "The lantern at your belt dims a little. You can feel it.",
+                  "The lantern feels a touch colder against your hip. Like it knows.",
+                  "You glance down at the lantern. The Truth flame is lower than it was.",
+                ],
+                flameChange: { truth: -8, courage: -5 },
+              },
+            ],
+          },
+          {
+            text: "“Please don't say that about Uncle Finn.”",
+            flames: { courage: +8, truth: +3, kindness: -1 },
+            keepsakes: ['L6'],
+            beats: [
+              {
+                speaker: 'Auntie Hettie',
+                speakerAvatar: '👩‍🍳',
+                narrateOptions: [
+                  "Hettie's hand pauses mid-brush. Her shoulders drop a tiny bit.",
+                  "The brush stops. Hettie sits very still for a moment.",
+                  "She looks down. The brush goes quiet in her hand.",
+                ],
+              },
+              {
+                speaker: 'Auntie Hettie',
+                speakerAvatar: '👩‍🍳',
+                sayOptions: [
+                  "Oh... I didn't mean to upset you, little one.",
+                  "Oh. I'm sorry, my love. That wasn't fair of me.",
+                  "...Right. Right, I shouldn't have. Forgive me.",
+                ],
+              },
+              {
+                narrateOptions: [
+                  "She finishes your hair quietly. In the morning, there's an extra honey-roll on your plate, and she says, very softly: “I shouldn't have said that. He loves you too, in his way.”",
+                  "She brushes the rest in silence — gentler now. At breakfast she slips a sugared plum onto your spoon and says, “About last night. I was wrong. He loves you. You know that.”",
+                  "She kisses the top of your head and finishes without speaking. The next day she packs your favourite lunch and doesn't mention it — but you can tell she means: I heard you.",
+                ],
+                flameChange: { courage: +8, truth: +3 },
+              },
+            ],
+          },
+          {
+            text: "“Uncle Finn loves me in his way. And you love me in yours. Both are true.”",
+            flames: { truth: +8, kindness: +8, courage: +8 },
+            keepsakes: ['L1'],
+            beats: [
+              {
+                narrateOptions: [
+                  "Hettie stops brushing. For a long moment she doesn't move.",
+                  "The brush hovers in the air. Hettie blinks slowly, like she's hearing something for the first time.",
+                  "Hettie goes very quiet. The wind moves the curtain behind her.",
+                ],
+              },
+              {
+                speaker: 'Auntie Hettie',
+                speakerAvatar: '👩‍🍳',
+                sayOptions: [
+                  "...You're wiser than me tonight, little one.",
+                  "Oh, my dear. You're right. You're right.",
+                  "...That's a better answer than I gave. You're growing up too quickly.",
+                ],
+              },
+              {
+                narrateOptions: [
+                  "She kisses the top of your head. Your lantern hums a soft note you've never heard it make before — like a small bell, far away.",
+                  "She puts down the brush and pulls you close. Your lantern glows warm against your hip — a sound like a single string plucked, then quiet.",
+                  "She nods, slow. Brushes your hair gently for the rest of the time. Your lantern feels heavier in a good way — like it knows.",
+                ],
+                flameChange: { truth: +8, kindness: +8, courage: +8 },
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+
+  bram_net: {
+    id: 'bram_net',
+    beats: [
+      {
+        speaker: 'Old Bram',
+        speakerAvatar: '🧓',
+        narrateOptions: [
+          "Bram is sitting by the pond, untangling a fishing net. He looks up and smiles.",
+          "Bram is on his usual flat rock by the pond, a long net spread across his lap. He squints up at you.",
+          "Bram has the net out, knots and all. The pond is still as glass. He nods at you without looking up.",
+        ],
+      },
+      {
+        speaker: 'Old Bram',
+        speakerAvatar: '🧓',
+        sayOptions: [
+          "Ah, little one. Would you give me a hand? Knots are easier with four hands than two.",
+          "There you are. Care to sit and help? My eyes aren't what they were.",
+          "Just the person. This net's got a temper today. Want to wrestle it with me?",
+        ],
+        choices: [
+          {
+            text: "“Yes, I'd like to help.”",
+            flames: { kindness: +5 },
+            keepsakes: ['L10'],
+            beats: [
+              {
+                narrateOptions: [
+                  "You sit beside him. He shows you how to follow a knot with your fingers until it loosens. It is slow, peaceful work. The pond ripples. Lulu nibbles grass nearby.",
+                  "You settle onto the rock. He teaches you to walk your fingers along the rope, finding the loose thread. The water laps quietly. Time stops mattering.",
+                  "You sit. He hands you a corner of the net. The two of you work in companionable silence, picking knots loose one at a time.",
+                ],
+                flameChange: { kindness: +5 },
+              },
+              {
+                speaker: 'Old Bram',
+                speakerAvatar: '🧓',
+                sayOptions: [
+                  "Thank you, little one. Some things in life are just like this. Patient hands, a quiet heart.",
+                  "Good work. You know — most things untangle if you just keep at them gently. Most things.",
+                  "Bless you. Half the world's troubles would mend faster if more people sat down and did this.",
+                ],
+              },
+            ],
+          },
+          {
+            text: "“Not today. My heart is a bit quiet.”",
+            flames: { truth: +5 },
+            keepsakes: ['L2', 'L4', 'L8'],
+            beats: [
+              {
+                speaker: 'Old Bram',
+                speakerAvatar: '🧓',
+                sayOptions: [
+                  "Ah. That's a true answer. A quiet heart needs space, not chores. Off you go, then.",
+                  "Right then. A quiet heart's worth more than a tidy net. Go and tend to it.",
+                  "Hm. Well said. The honest no is the best kind. Off with you.",
+                ],
+              },
+              {
+                narrateOptions: [
+                  "He smiles and goes back to his knots. You feel lighter for having told the truth.",
+                  "He gives you a small nod, eyes back on the rope. Walking away, you feel a little taller.",
+                  "He hums and bends back to his work. Something in your chest unclenches a little.",
+                ],
+                flameChange: { truth: +5 },
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+
+  lulu_pet: {
+    id: 'lulu_pet',
+    keepsakes: ['L10'],
+    beats: [
+      {
+        narrateOptions: [
+          "Lulu the goat trots up and headbutts your knee gently. She wants pets.",
+          "Lulu appears at your knee with great urgency, eyes wide, demanding scratches.",
+          "Lulu charges over from the grass, bleats once, and stares at you meaningfully. You know what she wants.",
+        ],
+      },
+      {
+        narrateOptions: [
+          "You scratch behind her ears. She closes her eyes and makes a small contented sound. Sometimes the smallest moments are the kindest.",
+          "You rub the soft spot under her chin. She melts. A tiny moment, but it counts.",
+          "You crouch down and let her press her forehead into yours. She huffs happily. The simplest kindness.",
+        ],
+        flameChange: { kindness: +2 },
+      },
+    ],
+  },
+
+  finn_loyalty: {
+    id: 'finn_loyalty',
+    beats: [
+      {
+        speaker: 'Uncle Finn',
+        speakerAvatar: '🧔',
+        narrateOptions: [
+          "Uncle Finn is by the fire, whittling a small bird from a piece of pine. He nods at the stool beside him without looking up.",
+          "The lodge smells of cedar smoke. Uncle Finn sits cross-legged by the hearth, shaving curls off a piece of pine. He taps the stool next to him with the back of his knife.",
+          "Uncle Finn is at the fireside, sharpening his knife on a small whetstone. He raises one eyebrow when you come in, and tips his head toward the empty stool.",
+        ],
+      },
+      {
+        speaker: 'Uncle Finn',
+        speakerAvatar: '🧔',
+        sayOptions: [
+          "Sit a while, little one. The wood smells good tonight.",
+          "Come and sit. There's stew on, and the fire's behaving.",
+          "Sit. Don't say anything yet. Just listen to the fire for a minute.",
+        ],
+      },
+      {
+        speaker: 'Uncle Finn',
+        speakerAvatar: '🧔',
+        narrateOptions: [
+          "He works in silence for a moment. The fire pops. Then his knife pauses.",
+          "He keeps carving. The fire mutters to itself. After a while his knife stops.",
+          "You sit. He carves. The wind shifts in the chimney. Then his hands go still.",
+        ],
+      },
+      {
+        speaker: 'Uncle Finn',
+        speakerAvatar: '🧔',
+        sayOptions: [
+          "Mm. You know — when you're over at Sunmeadow, all that noise and bustle. Auntie Hettie barely listens to you, I'd wager. Doesn't really see who you are. Not the way I do.",
+          "Hm. I always wonder — at Sunmeadow, with all those people coming through Hettie's kitchen, does she actually have time for you? I doubt she really sees you. Not the way I try to.",
+          "You know, little one. Sunmeadow is full of voices. Hettie's a kind soul but she's distracted. I'd guess you don't feel really heard there. Not properly.",
+          "Tell me honestly. At Sunmeadow — when you talk, does Auntie Hettie actually stop and listen? Or is she always halfway to the next thing? I'd put money on the second.",
+        ],
+        choices: [
+          {
+            text: "“You're right. She's too busy to really notice me.”",
+            flames: { truth: -8, kindness: -2, courage: -5 },
+            beats: [
+              {
+                narrateOptions: [
+                  "The words come out, but they sit wrong in your mouth — like saying something you don't quite believe. Uncle Finn nods, satisfied. But the lantern at your belt dims a little.",
+                  "It slips out. Uncle Finn grunts in agreement and goes back to his carving. The lantern at your belt feels heavier — and not in a good way.",
+                  "You say it. He smiles a small, satisfied smile. Something inside you wishes you'd said something else.",
+                ],
+                flameChange: { truth: -8, courage: -5 },
+              },
+            ],
+          },
+          {
+            text: "“Please don't say that about Auntie Hettie.”",
+            flames: { courage: +8, truth: +3, kindness: -1 },
+            keepsakes: ['L6'],
+            beats: [
+              {
+                speaker: 'Uncle Finn',
+                speakerAvatar: '🧔',
+                narrateOptions: [
+                  "Uncle Finn looks up, surprised. He sets his knife down slowly.",
+                  "Uncle Finn blinks. He lowers the knife to his lap. Looks at you properly for the first time tonight.",
+                  "His hand pauses. He raises his eyes from the wood to your face. He doesn't speak for a moment.",
+                ],
+              },
+              {
+                speaker: 'Uncle Finn',
+                speakerAvatar: '🧔',
+                sayOptions: [
+                  "...You're right. Forgive me, little one. That wasn't fair of me.",
+                  "...You're right. That was a small-hearted thing to say. I'm sorry.",
+                  "Hmph. Yes. I shouldn't have. Good for you for telling me.",
+                ],
+              },
+              {
+                narrateOptions: [
+                  "He carves a little extra petal into the wooden bird, then presses it into your hand. “For your courage,” he says quietly.",
+                  "He finishes the little bird with extra care, then sets it on your palm. “Hold onto that one,” he says. “You earned it tonight.”",
+                  "He goes back to whittling, but slower. Before bed he hands you the bird and says simply: “Thank you.”",
+                ],
+                flameChange: { courage: +8, truth: +3 },
+              },
+            ],
+          },
+          {
+            text: "“Auntie Hettie loves me her own way. And you love me in yours. Both are true.”",
+            flames: { truth: +8, kindness: +8, courage: +8 },
+            keepsakes: ['L1'],
+            beats: [
+              {
+                narrateOptions: [
+                  "Uncle Finn's knife stops mid-stroke. The fire pops in the quiet.",
+                  "The knife halts in the air. The fire crackles in the silence between you.",
+                  "Uncle Finn goes very still. The wind shifts outside.",
+                ],
+              },
+              {
+                speaker: 'Uncle Finn',
+                speakerAvatar: '🧔',
+                sayOptions: [
+                  "Ah. Yes. That is the truth of it, isn't it. I forget sometimes.",
+                  "Hm. Yes. Both, then. I'd forgotten that's how it works.",
+                  "...Right. Right. You're right. The truth is bigger than what I just said.",
+                ],
+              },
+              {
+                narrateOptions: [
+                  "He hands you the little wooden bird he was carving. “You keep this one. To remind us both.” Your lantern hums that same soft bell-note as before — a song only it knows.",
+                  "He finishes the wooden bird and sets it carefully in your hand. “You keep it. To remember the answer you gave tonight.” Your lantern glows warmer at your hip.",
+                  "He passes you the bird. “Take this back to Sunmeadow with you, too. Both places.” The lantern hums softly, just for you.",
+                ],
+                flameChange: { truth: +8, kindness: +8, courage: +8 },
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+
+  moss_wisdom: {
+    id: 'moss_wisdom',
+    keepsakes: ['L9'],
+    beats: [
+      {
+        narrateOptions: [
+          "Moss the turtle is half-submerged in the cool pond. He blinks slowly at you.",
+          "Moss has surfaced near the lily pad, just his head above water. He looks at you with infinite patience.",
+          "Moss is sunning himself on the flat rock at the edge of the pond. He turns one ancient eye to you.",
+        ],
+      },
+      {
+        speaker: 'Moss',
+        speakerAvatar: '🐢',
+        sayOptions: [
+          "Little one. The wind sometimes carries stories about the other island. Do you hear them?",
+          "Ah. You came to sit a while. Tell me — has the wind been bringing stories across the water?",
+          "Hmm. The wind has been talkative lately, hasn't it. Sometimes it speaks about people who can't speak for themselves.",
+        ],
+      },
+      {
+        narrateOptions: [
+          "You nod.",
+          "You nod slowly.",
+          "You don't say anything, but Moss seems to understand.",
+        ],
+      },
+      {
+        speaker: 'Moss',
+        speakerAvatar: '🐢',
+        sayOptions: [
+          "Old shells know this: the wind does not know everything. The wind does not know what is in your heart. Only you do. Hold it close.",
+          "An old turtle learns this slowly: the wind is loud, but it does not know your heart. Only you know what is in there. Tend it carefully.",
+          "Listen, little one. The wind says many things. But the wind has never been inside you. Only you know what's true for you. That's a strong thing to remember.",
+        ],
+      },
+      {
+        narrateOptions: [
+          "Moss closes his eyes, content. You feel a small steady warmth, like sunlight through leaves.",
+          "Moss sinks a little further into the water, eyes half-closed. Something quiet and warm settles in your chest.",
+          "He goes still as a stone. You stay a moment longer, listening to the water. Something inside you straightens.",
+        ],
+        flameChange: { truth: +3, courage: +3 },
+      },
+    ],
+  },
+
+  bridge_fox: {
+    id: 'bridge_fox',
+    beats: [
+      {
+        narrate: "Halfway across, a small silver fox with bright eyes sits on the bridge railing. She tilts her head at you.",
+      },
+      {
+        speaker: 'Bridge Fox',
+        speakerAvatar: '🦊',
+        say: getBridgeQuestion(),
+      },
+      {
+        narrate: "She waits, but she does not need an answer. After a long, kind moment, she flicks her tail — and is gone.",
+        flameChange: { truth: +2 },
+      },
+    ],
+  },
+
+  marigold_juno: {
+    id: 'marigold_juno',
+    beats: [
+      {
+        narrateOptions: [
+          "The Tideschool circle is forming on the dock. Pip is already there. Marigold is gathering her usual group around her. A little way off, Juno sits alone, looking at the water.",
+          "Children from both islands are gathering at the dock. Pip is bouncing about with chalk. Marigold has her usual three around her. Juno is alone at the far end, hugging her knees.",
+          "The Tideschool gathering is starting. Pip waves at you. Marigold is whispering something to her circle that makes them laugh. Juno sits by herself, drawing patterns in the sand with a stick.",
+        ],
+      },
+      {
+        speaker: 'Marigold',
+        speakerAvatar: '👧🏼',
+        narrateOptions: [
+          "Marigold sees you. She waves you over and, as you come close, lowers her voice.",
+          "Marigold spots you. She beckons you closer with two fingers, then leans in conspiratorially.",
+          "Marigold catches your eye and waves. When you reach her, she pulls you aside, away from her circle.",
+        ],
+      },
+      {
+        speaker: 'Marigold',
+        speakerAvatar: '👧🏼',
+        sayOptions: [
+          "Don't sit with Juno. She's weird. If you sit with her, you can't be in our circle today.",
+          "Listen — don't go near Juno today, okay? She's just weird. Pick: us or her.",
+          "Don't talk to Juno. If you do, we're not your friends today. That's the rule.",
+        ],
+        choices: [
+          {
+            text: "Sit in Marigold's circle.",
+            flames: { truth: -5, kindness: -8, courage: -5 },
+            beats: [
+              {
+                narrateOptions: [
+                  "You sit down next to Marigold. She smiles, pleased. You try to laugh at her jokes, but your eyes keep drifting to Juno, sitting alone with her knees pulled up. Something inside feels heavy.",
+                  "You take a place in Marigold's circle. She squeezes your arm, approving. The jokes start. You laugh — a beat too late, every time. Juno never looks up from her stick in the sand.",
+                  "You sit. Marigold's circle closes around you. It's warm in there, but you can feel Juno's solitude across the dock like a small weight.",
+                ],
+                flameChange: { truth: -5, kindness: -8, courage: -5 },
+              },
+            ],
+          },
+          {
+            text: "Slip away quietly and sit with Juno.",
+            flames: { kindness: +6, courage: +3, truth: +2 },
+            keepsakes: ['L3'],
+            beats: [
+              {
+                narrateOptions: [
+                  "You step back from Marigold's circle without saying anything, and walk over to Juno. She looks up, surprised, then gives you a small, careful smile.",
+                  "Without a word, you slip away and cross the dock to where Juno sits. She blinks at you. Then her face does the smallest thing — almost a smile.",
+                  "You don't argue. You just walk to where Juno is. She glances up, startled. After a second she scoots over to make room.",
+                ],
+              },
+              {
+                speaker: 'Juno',
+                speakerAvatar: '👧🏾',
+                sayOptions: [
+                  "...Hi.",
+                  "Oh. Hi.",
+                  "...You can sit if you want.",
+                ],
+              },
+              {
+                narrateOptions: [
+                  "You sit beside her and watch the boats. Neither of you says much. It is quiet, and it is kind.",
+                  "You sit. The water laps at the pilings. You don't need to talk. Juno relaxes, just a little, beside you.",
+                  "You settle next to her. After a long while she shows you a small shell she's been holding. You hold one back. It's a whole conversation, without words.",
+                ],
+                flameChange: { kindness: +6, courage: +3, truth: +2 },
+              },
+            ],
+          },
+          {
+            text: "“I'm going to sit with Juno today. You can come too if you want.”",
+            flames: { truth: +8, kindness: +8, courage: +8 },
+            keepsakes: ['L3', 'L6'],
+            beats: [
+              {
+                narrateOptions: [
+                  "You say it clearly. Marigold's face goes through three expressions in one second. Some of her circle look at the ground.",
+                  "You say it without any fuss. Marigold's mouth opens. Her circle goes very quiet. Theo looks at his shoes.",
+                  "Out it comes — not loud, but very clear. Marigold stares. A couple of her friends suddenly find their fingernails very interesting.",
+                ],
+              },
+              {
+                narrate: getMarigoldOutcome(),
+              },
+              {
+                narrateOptions: [
+                  "Either way — your lantern glows. The choice was yours, and you made it.",
+                  "Whatever happens next — your lantern shines bright. What other people do is theirs. What you did is yours.",
+                  "However it goes, your lantern hums. You said the true thing. That always counts.",
+                ],
+                flameChange: { truth: +8, kindness: +8, courage: +8 },
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+
+  pip_play: {
+    id: 'pip_play',
+    beats: [
+      {
+        speaker: 'Pip',
+        speakerAvatar: '🧒🏻',
+        narrateOptions: [
+          "Pip runs up, breathless, with a stub of chalk in their hand.",
+          "Pip skids to a stop in front of you, beaming, a piece of yellow chalk in one fist.",
+          "Pip comes barreling over, all excited, with chalk dust on their cheeks.",
+        ],
+      },
+      {
+        speaker: 'Pip',
+        speakerAvatar: '🧒🏻',
+        sayOptions: [
+          "Hopscotch! I drew the squares already! Come play, come play, come play!",
+          "Tag! You're it! Wait — no — hopscotch! Look, I drew it! Come on!",
+          "I made an obstacle course! Come do it! It's the best one I've ever made, I promise!",
+        ],
+      },
+      {
+        narrateOptions: [
+          "You notice your heart is a bit quiet today. Not sad. Just quiet. Like a low candle.",
+          "Something in you doesn't quite match Pip's bounce today. Your heart feels small and slow. Not bad. Just quiet.",
+          "Inside you, there's a soft hush. Not unhappy. Just — your heart is on low volume today.",
+        ],
+        choices: [
+          {
+            text: "Play anyway, even though you don't really feel like it.",
+            flames: { truth: -5 },
+            beats: [
+              {
+                narrateOptions: [
+                  "You play. You jump the squares. Pip laughs. But there's a small heaviness behind your smile, because you ignored what your heart was telling you.",
+                  "You join in. You jump, you laugh in the right places. But it feels like wearing a costume. Inside, your quiet heart got pushed down.",
+                  "You play. Pip is delighted. Afterwards you feel tired — more tired than the game should have made you. Your own voice went unheard.",
+                ],
+                flameChange: { truth: -5 },
+              },
+            ],
+          },
+          {
+            text: "“No.” Walk away.",
+            flames: { truth: +2, kindness: -3 },
+            beats: [
+              {
+                narrateOptions: [
+                  "You say no, sharply, and walk off. Pip's face falls. You weren't dishonest — but you weren't gentle either. Both things can be true.",
+                  "“No,” you say, too short. You turn and go. Pip stands there with the chalk, looking small. The truth was in your no — but the kindness wasn't.",
+                  "You shake your head and walk away without saying more. Pip's shoulders drop. You were honest, yes. You could have been kinder too.",
+                ],
+                flameChange: { truth: +2, kindness: -3 },
+              },
+            ],
+          },
+          {
+            text: "“Not right now, Pip — my heart is a bit quiet today. Could we read something together instead?”",
+            flames: { truth: +6, kindness: +6, courage: +6 },
+            keepsakes: ['L2', 'L4'],
+            beats: [
+              {
+                speaker: 'Pip',
+                speakerAvatar: '🧒🏻',
+                narrateOptions: [
+                  "Pip stops bouncing. They tilt their head, thinking.",
+                  "Pip goes still for a second. They blink at you. You can almost see them adjusting.",
+                  "Pip pauses, chalk still in hand. They consider you, properly, for the first time.",
+                ],
+              },
+              {
+                speaker: 'Pip',
+                speakerAvatar: '🧒🏻',
+                sayOptions: [
+                  "Okay. I have a book about whales in my bag.",
+                  "Oh. Yeah, okay. I've got my drawing pad — we can draw quiet things?",
+                  "Okay! Quiet game then. I know one with just thumb wars. Or just sitting?",
+                ],
+              },
+              {
+                narrateOptions: [
+                  "You sit together at the edge of the dock and read about whales. It is exactly the kind of quiet you needed. Saying no to one thing was saying yes to what your heart actually wanted.",
+                  "The two of you sit at the dock's edge and draw quietly together. It is exactly the kind of company your heart wanted. Saying no to one thing made room for what was right.",
+                  "You sit shoulder to shoulder in companionable quiet. Pip gets it. Saying no kindly opened the door to the thing you actually needed.",
+                ],
+                flameChange: { truth: +6, kindness: +6, courage: +6 },
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+
+  theo_quiet: {
+    id: 'theo_quiet',
+    beats: [
+      {
+        narrateOptions: [
+          "Theo is sitting at the very end of the dock, swinging his legs slowly. He doesn't look up when you come close.",
+          "Theo is alone at the dock's end, legs dangling over the water. He hears you arrive but keeps looking at the sea.",
+          "At the far end of the dock, Theo sits with his back to everyone else. The other kids' voices feel far away from here.",
+        ],
+      },
+      {
+        speaker: 'Theo',
+        speakerAvatar: '👦🏽',
+        sayOptions: [
+          "I don't always feel like playing. I just want to sit and watch the water sometimes.",
+          "Sometimes I just need to be away from the noise. That's all. It's not anything bad.",
+          "I'm not sulking. I just like the quiet. Some days I need it.",
+        ],
+        choices: [
+          {
+            text: "“Want me to leave you alone?”",
+            flames: { kindness: +3, truth: +2 },
+            keepsakes: ['L5'],
+            beats: [
+              {
+                speaker: 'Theo',
+                speakerAvatar: '👦🏽',
+                sayOptions: [
+                  "...No. You can stay. If you want. Just — quiet, okay?",
+                  "...Actually, you can stay. If you don't want to talk much.",
+                  "No. Sit, if you like. Just — don't try to cheer me up. I'm okay.",
+                ],
+              },
+              {
+                narrateOptions: [
+                  "You sit down beside him without a word. After a while he gives you a tiny smile, the kind that says: thank you for not making me talk.",
+                  "You settle next to him. After a long quiet, his shoulder bumps yours. He says nothing. He doesn't need to.",
+                  "You sit. Time passes. Eventually he hums one short bar of a song. That's the whole conversation.",
+                ],
+                flameChange: { kindness: +3, truth: +2 },
+              },
+            ],
+          },
+          {
+            text: "Sit beside him without saying anything.",
+            flames: { kindness: +5, truth: +3 },
+            keepsakes: ['L5'],
+            beats: [
+              {
+                narrateOptions: [
+                  "You sit down. You don't say a word. Theo doesn't either. The water laps the dock. A gull cries somewhere.",
+                  "You take a place beside him in silence. The tide breathes in and out under the boards. Neither of you speaks.",
+                  "You join him without a word. The sea is grey-green. A boat creaks somewhere. The quiet stretches out, easy.",
+                ],
+              },
+              {
+                narrateOptions: [
+                  "After a long while, Theo bumps your shoulder gently with his. That is all. But it was enough.",
+                  "After a long time, Theo lets out a small breath, like something released. He glances at you. Smiles. Looks back at the water.",
+                  "Eventually he tips his head onto your shoulder for just a second. Then back upright. He never says a word. He didn't have to.",
+                ],
+                flameChange: { kindness: +5, truth: +3 },
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+};
+
+function getMarigoldOutcome() {
+  const outcomes = [
+    "Marigold rolls her eyes and turns her back. The others stay with her. You and Juno sit together, just the two of you. The water laps quietly against the dock.",
+    "Marigold huffs — but after a long pause, she gets up and wanders over. She sits down without quite looking at you or Juno. Then Theo follows. The circle re-formed itself, kinder this time.",
+    "Marigold pretends she didn't hear you. You go and sit with Juno. After a few minutes, Pip leaves Marigold's circle and comes over to join you. Marigold sits alone for a while, watching.",
+  ];
+  return outcomes[Math.floor(Math.random() * outcomes.length)];
+}
+
+function getBridgeQuestion() {
+  const qs = [
+    "What did you bring with you from the island you just left?",
+    "Whose voice sounded most like your own today?",
+    "What did you notice today that no one else might have seen?",
+    "Is there something you want to leave behind, here on the bridge?",
+    "What would your lantern say, if it had words?",
+    "If your heart had a colour right now, what colour would it be?",
+  ];
+  return qs[Math.floor(Math.random() * qs.length)];
+}
+
+// Apply flame deltas for scenes that have no branches (lulu)
+function applySceneFlameChanges(scene) {
+  // For branched scenes, deltas are applied when branch ends.
+  // For non-branched, traverse beats and sum flameChange.
+  let total = {};
+  scene.beats.forEach(b => {
+    if (b.flameChange) {
+      for (const k in b.flameChange) total[k] = (total[k] || 0) + b.flameChange[k];
+    }
+  });
+  return total;
+}
+
+/* Pick a random element from an array. Used for per-play dialogue variations. */
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/* Walk the scene tree and resolve any *Options arrays into a single picked string.
+   This way the same scene reads differently each time it plays, while keeping the
+   structure (choices, flames, keepsakes, branches) stable. */
+function prepareScene(scene) {
+  return resolveOptions(scene);
+}
+function resolveOptions(node) {
+  if (Array.isArray(node)) return node.map(resolveOptions);
+  if (node && typeof node === 'object') {
+    const out = {};
+    for (const k of Object.keys(node)) {
+      if (k === 'sayOptions' && Array.isArray(node[k]) && node[k].length) {
+        out.say = pick(node[k]);
+      } else if (k === 'narrateOptions' && Array.isArray(node[k]) && node[k].length) {
+        out.narrate = pick(node[k]);
+      } else if (k === 'textOptions' && Array.isArray(node[k]) && node[k].length) {
+        out.text = pick(node[k]);
+      } else {
+        out[k] = resolveOptions(node[k]);
+      }
+    }
+    return out;
+  }
+  return node;
+}
+
+function startScene(sceneId, onComplete) {
+  const rawScene = scenes[sceneId];
+  if (!rawScene) return;
+  // Refresh dynamic narrations (random branches) per play
+  if (sceneId === 'marigold_juno') {
+    rawScene.beats[2].choices[2].beats[1].narrate = getMarigoldOutcome();
+  }
+  // Resolve any *Options arrays into single picks for this play
+  const scene = prepareScene(rawScene);
+  // For simple (non-branched) scenes like lulu, apply totals on finish via a wrapper.
+  const hasChoices = scene.beats.some(b => b.choices);
+  if (!hasChoices) {
+    const totals = applySceneFlameChanges(scene);
+    const wrapped = { ...scene, beats: scene.beats };
+    let beatIndex = 0;
+    let finished = false;
+    function advance() {
+      if (finished) return;
+      if (beatIndex >= wrapped.beats.length) {
+        finished = true;
+        adjustFlames(totals);
+        state.scenesPlayed[scene.id] = (state.scenesPlayed[scene.id] || 0) + 1;
+        saveState();
+        // Unlock scene-level keepsakes (non-branched scenes like lulu, moss, bridge_fox)
+        unlockKeepsakes(scene.keepsakes, { scene: scene.id });
+        checkMilestones();
+        closeSheet();
+        if (onComplete) onComplete();
+        return;
+      }
+      const beat = wrapped.beats[beatIndex];
+      beatIndex++;
+      let html = '';
+      if (beat.speaker) {
+        html += `<div class="speaker"><div class="speaker-avatar">${beat.speakerAvatar || ''}</div><div class="speaker-name">${beat.speaker}</div></div>`;
+      }
+      if (beat.narrate) html += `<p class="narration">${beat.narrate}</p>`;
+      if (beat.say) html += `<p class="dialogue">${beat.say}</p>`;
+      html += `<button class="continue-btn" id="next-btn">${beatIndex >= wrapped.beats.length ? 'Continue' : 'Continue'}</button>`;
+      if (beat.flameChange) html += flameChangeHTML(beat.flameChange);
+      openSheet(html);
+      document.getElementById('next-btn').addEventListener('click', advance);
+    }
+    advance();
+  } else {
+    playScene(scene, onComplete);
+  }
+}
+
+/* ============ LOCATIONS ============ */
+const locations = {
+  sunmeadow: {
+    name: 'Sunmeadow',
+    icon: '☀️',
+    sceneClass: '',
+    decor: `
+      <div class="sun"></div>
+      <div class="cloud c1">☁️</div>
+      <div class="cloud c2">☁️</div>
+      <div class="porch"></div>
+      <div class="pond"></div>
+    `,
+    chars: [
+      { id: 'bram', emoji: '🧓', label: 'Old Bram', x: 8, bottom: 32, size: 52, scene: 'bram_net' },
+      { id: 'lulu', emoji: '🐐', label: '', x: 38, bottom: 28, size: 36, scene: 'lulu_pet' },
+      { id: 'hettie', emoji: '👩‍🍳', label: 'Auntie Hettie', x: 72, bottom: 36, size: 52, scene: 'hettie_loyalty', hint: '💬' },
+    ],
+    travelTo: 'mistwood',
+  },
+  mistwood: {
+    name: 'Mistwood',
+    icon: '🌙',
+    sceneClass: 'mistwood',
+    decor: `
+      <div class="moon"></div>
+      <div class="star" style="top:18%; left:12%;"></div>
+      <div class="star" style="top:25%; left:25%; animation-delay:-1s;"></div>
+      <div class="star" style="top:15%; left:60%; animation-delay:-2s;"></div>
+      <div class="star" style="top:30%; left:78%; animation-delay:-0.5s;"></div>
+      <div class="star" style="top:22%; left:45%; animation-delay:-1.5s;"></div>
+      <div class="star" style="top:10%; left:35%;"></div>
+      <div class="tree t1">🌲</div>
+      <div class="tree t2">🌲</div>
+      <div class="tree t3">🌲</div>
+      <div class="lodge"></div>
+      <div class="pond-mist"></div>
+    `,
+    chars: [
+      { id: 'moss', emoji: '🐢', label: 'Moss', x: 12, bottom: 22, size: 36, scene: 'moss_wisdom' },
+      { id: 'finn', emoji: '🧔', label: 'Uncle Finn', x: 74, bottom: 36, size: 52, scene: 'finn_loyalty', hint: '💬' },
+    ],
+    travelTo: 'sunmeadow',
+  },
+  tideschool: {
+    name: 'Tideschool',
+    icon: '🏝',
+    sceneClass: 'tideschool',
+    decor: `
+      <div class="sea"></div>
+      <div class="dock"></div>
+      <div class="cloud c1">☁️</div>
+      <div class="cloud c2">☁️</div>
+      <div class="gull g1">🕊️</div>
+      <div class="gull g2">🕊️</div>
+    `,
+    chars: [
+      { id: 'juno', emoji: '👧🏾', label: 'Juno', x: 12, bottom: 40, size: 38, scene: 'marigold_juno' },
+      { id: 'pip', emoji: '🧒🏻', label: 'Pip', x: 36, bottom: 40, size: 38, scene: 'pip_play', hint: '🎨' },
+      { id: 'marigold', emoji: '👧🏼', label: 'Marigold', x: 58, bottom: 40, size: 38, scene: 'marigold_juno', hint: '💬' },
+      { id: 'theo', emoji: '👦🏽', label: 'Theo', x: 80, bottom: 40, size: 34, scene: 'theo_quiet' },
+    ],
+    // travelTo handled specially — returns to lastIsland
+  },
+};
+
+function renderLocation() {
+  const loc = locations[state.location];
+  const sceneEl = document.getElementById('scene');
+  sceneEl.className = 'scene ' + loc.sceneClass;
+  document.getElementById('place-icon').textContent = loc.icon;
+  document.getElementById('place-name').textContent = loc.name;
+  // Travel button label: from Tideschool, returns to lastIsland; from islands, toggles
+  const travelLabel = document.getElementById('travel-label');
+  if (state.location === 'tideschool') {
+    const home = locations[state.lastIsland];
+    travelLabel.textContent = `← ${home.icon} ${home.name}`;
+  } else {
+    const dest = locations[loc.travelTo];
+    travelLabel.textContent = `${dest.icon} ${dest.name}`;
+  }
+  // Tideschool button: visible only on event days and when not already there
+  const tsBtn = document.getElementById('tideschool-btn');
+  if (isTideschoolDay() && state.location !== 'tideschool') {
+    tsBtn.classList.add('show');
+  } else {
+    tsBtn.classList.remove('show');
+  }
+  document.getElementById('bg-decor').innerHTML = loc.decor;
+  // Render NPCs
+  const npcsEl = document.getElementById('npcs');
+  npcsEl.innerHTML = loc.chars.map(c => `
+    <div class="char bobbing" data-char="${c.id}" data-x="${c.x}"
+         style="left:${c.x}%; bottom:${c.bottom}%; font-size:${c.size}px;">
+      ${c.emoji}
+      ${c.label ? `<span class="char-label">${c.label}</span>` : ''}
+      ${c.hint ? `<span class="interact-hint">${c.hint}</span>` : ''}
+    </div>
+  `).join('');
+  bindCharTaps();
+  // Reset wren to mid-scene for this location
+  const wren = document.getElementById('wren');
+  wren.style.left = '50%';
+  wren.dataset.x = '50';
+  wren.classList.remove('walking');
+  wren.classList.add('bobbing');
+}
+
+function bindCharTaps() {
+  document.querySelectorAll('#npcs .char[data-char]').forEach(el => {
+    el.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const targetX = parseFloat(el.dataset.x);
+      const standX = targetX < 50 ? targetX + 8 : Math.max(targetX - 10, 5);
+      await moveWrenTo(standX);
+      const hint = el.querySelector('.interact-hint');
+      if (hint) hint.style.display = 'none';
+      const sceneId = locations[state.location].chars.find(c => c.id === el.dataset.char)?.scene;
+      if (sceneId) startScene(sceneId);
+    });
+  });
+}
+
+document.getElementById('scene').addEventListener('click', (e) => {
+  if (e.target.closest('.char') || e.target.closest('.firefly')) return;
+  const rect = document.getElementById('scene').getBoundingClientRect();
+  const xPct = ((e.clientX - rect.left) / rect.width) * 100;
+  const clamped = Math.max(8, Math.min(90, xPct));
+  moveWrenTo(clamped);
+});
+
+/* ============ TRAVEL / BRIDGE ============ */
+let traveling = false;
+function travel(toLocation) {
+  if (traveling) return;
+  traveling = true;
+  const from = locations[state.location];
+  // If toLocation is explicitly passed (e.g. Tideschool), use it; else default toggle target
+  let destId;
+  if (toLocation) {
+    destId = toLocation;
+  } else if (state.location === 'tideschool') {
+    destId = state.lastIsland;
+  } else {
+    destId = from.travelTo;
+  }
+  const dest = locations[destId];
+  const overlay = document.getElementById('bridge-overlay');
+  const label = document.getElementById('bridge-label');
+  label.innerHTML = `<span class="from">crossing the starlit bridge</span>${from.icon} ${from.name} → ${dest.icon} ${dest.name}`;
+  const stars = document.getElementById('bridge-stars');
+  stars.innerHTML = '';
+  for (let i = 0; i < 22; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.top = (Math.random() * 70) + '%';
+    s.style.left = (Math.random() * 100) + '%';
+    s.style.animationDelay = (-Math.random() * 3) + 's';
+    stars.appendChild(s);
+  }
+  overlay.classList.remove('reverse');
+  if (state.location === 'mistwood') overlay.classList.add('reverse');
+  overlay.classList.add('show');
+
+  const finishCrossing = () => {
+    // Track lastIsland when leaving an island (not when leaving Tideschool)
+    if (state.location !== 'tideschool' && destId !== 'tideschool') {
+      state.lastIsland = destId;
+    } else if (state.location !== 'tideschool' && destId === 'tideschool') {
+      state.lastIsland = state.location;
+    }
+    // Count starlit-bridge crossings for milestone M3 (Sunmeadow ↔ Mistwood only)
+    if (isStarlitBridge) {
+      counters.bridgeCrossings = (counters.bridgeCrossings || 0) + 1;
+      saveCounters(counters);
+    }
+    state.location = destId;
+    saveState();
+    renderLocation();
+    overlay.classList.remove('show');
+    overlay.classList.remove('reverse');
+    traveling = false;
+    checkMilestones();
+  };
+
+  // Bridge Fox only appears on the Sunmeadow ↔ Mistwood starlit bridge
+  const isStarlitBridge = (state.location === 'sunmeadow' && destId === 'mistwood')
+    || (state.location === 'mistwood' && destId === 'sunmeadow');
+  const meetFox = isStarlitBridge && Math.random() < 0.5;
+  if (meetFox) {
+    // Pause the wren animation while the fox talks, then resume.
+    setTimeout(() => {
+      const wrenEl = overlay.querySelector('.bridge-wren');
+      const computed = getComputedStyle(wrenEl).left;
+      wrenEl.style.animation = 'none';
+      wrenEl.style.left = computed;
+      scenes.bridge_fox.beats[1].say = getBridgeQuestion();
+      startScene('bridge_fox', () => {
+        // Resume crossing animation for the second half, then arrive.
+        wrenEl.style.left = '';
+        wrenEl.style.animation = '';
+        // Re-trigger the keyframe animation by reflow:
+        void wrenEl.offsetWidth;
+        wrenEl.style.animation = (state.location === 'mistwood' ? 'cross-bridge-reverse' : 'cross-bridge') + ' 2.5s linear forwards';
+        setTimeout(finishCrossing, 2500);
+      });
+    }, 2200);
+  } else {
+    setTimeout(finishCrossing, 5000);
+  }
+}
+
+document.getElementById('travel-btn').addEventListener('click', () => {
+  // Don't allow travel while a sheet is open
+  if (document.getElementById('overlay').classList.contains('open')) return;
+  travel();
+});
+
+document.getElementById('tideschool-btn').addEventListener('click', () => {
+  if (document.getElementById('overlay').classList.contains('open')) return;
+  if (!isTideschoolDay() || state.location === 'tideschool') return;
+  travel('tideschool');
+});
+
+/* ============ LANTERN TAP ============ */
+document.getElementById('lantern').addEventListener('click', () => {
+  openSheet(`
+    <div class="speaker"><div class="speaker-avatar">🏮</div><div class="speaker-name">Your Lantern</div></div>
+    <p class="narration">Grandmother gave you this lantern. It's yours. No one else's. It has three small flames inside.</p>
+    <p class="narration"><strong style="color:#B89400">🟡 Truth</strong> — brightens when you say what you really feel, even when it's hard.</p>
+    <p class="narration"><strong style="color:#C04870">🩷 Kindness</strong> — brightens when you are gentle with yourself and with others.</p>
+    <p class="narration"><strong style="color:#1F8E80">🩵 Courage</strong> — brightens when you choose to speak up, set a kind boundary, or be honest.</p>
+    <p class="narration">When all three glow bright, the lantern hums a song only you can hear. And sometimes, little friends come to find you.</p>
+    <button class="continue-btn" id="next-btn">Okay</button>
+  `);
+  document.getElementById('next-btn').addEventListener('click', closeSheet);
+});
+
+/* ============ REST / NEW DAY ============ */
+document.getElementById('rest-btn').addEventListener('click', () => {
+  const fade = document.getElementById('day-fade');
+  const here = locations[state.location];
+  fade.textContent = `${here.icon === '☀️' ? '🌙' : '🌌'}  Resting at ${here.name}...`;
+  fade.classList.add('show');
+  setTimeout(() => {
+    state.day += 1;
+    saveState();
+    renderDay();
+    renderLocation(); // re-render so all interact-hints come back
+    checkMilestones();
+    fade.textContent = `${here.icon}  Day ${state.day}`;
+    setTimeout(() => {
+      fade.classList.remove('show');
+    }, 900);
+  }, 900);
+});
+
+/* ============ REFLECTION FLOW (her voice) ============ */
+let recState = null;        // null | 'recording' | 'recorded'
+let recBlob = null;
+let recType = 'audio/webm';
+let recStart = 0;
+let recTimerHandle = null;
+
+function startReflectionFlow(lessonId) {
+  const lesson = LESSONS.find(l => l.id === lessonId);
+  if (!lesson) return;
+  recState = null;
+  recBlob = null;
+  renderReflectionSheet(lesson);
+}
+
+function renderReflectionSheet(lesson) {
+  const supported = isRecordingSupported();
+  let html = `<div class="reflection-sheet">
+    <div class="speaker">
+      <div class="speaker-avatar">${lesson.icon}</div>
+      <div>
+        <div class="speaker-name">${lesson.name}</div>
+        <div style="font-size:12px; color:var(--ink-soft); font-style:italic;">${lesson.short}</div>
+      </div>
+    </div>
+    <p class="dialogue" style="text-align:center; font-size:18px; margin: 18px 0 6px;">What did this mean to you?</p>`;
+
+  if (!supported) {
+    html += `<p class="reflection-prompt">(Your device doesn't allow voice recording in this browser. You can still save this keepsake — ${lesson.speaker}'s message is below.)</p>
+      <button class="continue-btn" id="skip-reflection">Continue</button>`;
+  } else if (recState === null) {
+    html += `<p class="reflection-prompt">Press the button and say what you're thinking. When you're done, ${lesson.speaker}'s message will play.</p>
+      <button class="rec-btn" id="rec-start">
+        <span class="mic">🎤</span><span>Start recording</span>
+      </button>
+      <button class="rec-skip" id="rec-skip">Maybe later</button>`;
+  } else if (recState === 'recording') {
+    html += `<div class="rec-active">
+        <div class="rec-dot"></div>
+        <div class="rec-timer" id="rec-timer">0:00</div>
+        <div class="rec-hint">Take your time. Say anything you want.</div>
+        <button class="rec-stop" id="rec-stop"><span>■</span> Done</button>
+      </div>`;
+  } else if (recState === 'recorded' && recBlob) {
+    const url = URL.createObjectURL(recBlob);
+    html += `<p class="reflection-prompt">Have a listen. Save it if it feels right, or try again.</p>
+      <audio src="${url}" controls style="width:100%; margin: 6px 0 14px;"></audio>
+      <button class="continue-btn" id="rec-save">Save my reflection ✨</button>
+      <button class="rec-skip" id="rec-redo">Try again</button>`;
+  }
+  html += `</div>`;
+  openSheet(html);
+
+  if (!supported) {
+    document.getElementById('skip-reflection').addEventListener('click', () => playFamilyVideoOrLetter(lesson));
+  } else if (recState === null) {
+    document.getElementById('rec-start').addEventListener('click', async () => {
+      try {
+        recType = await startRecording();
+        recState = 'recording';
+        recStart = Date.now();
+        renderReflectionSheet(lesson);
+        recTimerHandle = setInterval(updateRecTimer, 200);
+      } catch (e) {
+        // Permission denied or other — fall through to letter
+        playFamilyVideoOrLetter(lesson);
+      }
+    });
+    document.getElementById('rec-skip').addEventListener('click', () => {
+      // She skipped — just show the letter (video stays locked until she records)
+      playFamilyVideoOrLetter(lesson, /*skipVideo*/ true);
+    });
+  } else if (recState === 'recording') {
+    document.getElementById('rec-stop').addEventListener('click', async () => {
+      if (recTimerHandle) { clearInterval(recTimerHandle); recTimerHandle = null; }
+      const result = await stopRecording();
+      if (result && result.blob) {
+        recBlob = result.blob;
+        recType = result.type;
+        recState = 'recorded';
+      } else {
+        recState = null;
+      }
+      renderReflectionSheet(lesson);
+    });
+  } else if (recState === 'recorded') {
+    document.getElementById('rec-save').addEventListener('click', async () => {
+      try {
+        await saveReflection(lesson.id, recBlob, recType);
+      } catch (e) {
+        // best effort — proceed anyway
+      }
+      recState = null;
+      recBlob = null;
+      playFamilyVideoOrLetter(lesson);
+    });
+    document.getElementById('rec-redo').addEventListener('click', () => {
+      recBlob = null;
+      recState = null;
+      renderReflectionSheet(lesson);
+    });
+  }
+}
+
+function updateRecTimer() {
+  const sec = Math.floor((Date.now() - recStart) / 1000);
+  const mm = Math.floor(sec / 60);
+  const ss = (sec % 60).toString().padStart(2, '0');
+  const el = document.getElementById('rec-timer');
+  if (el) el.textContent = `${mm}:${ss}`;
+}
+
+async function playFamilyVideoOrLetter(lesson, skipVideo) {
+  const videoUrl = skipVideo ? null : await videoExists(lesson.id);
+  let html = `<div class="speaker">
+      <div class="speaker-avatar">${lesson.icon}</div>
+      <div class="speaker-name">A message from ${lesson.speaker}</div>
+    </div>`;
+  if (videoUrl) {
+    html += `<video src="${videoUrl}" controls autoplay playsinline
+      style="width:100%; border-radius:14px; background:#000; margin: 14px 0;"></video>`;
+  } else if (skipVideo) {
+    html += `<div class="gated-video-note">
+      <strong>🎁 A message is waiting from ${lesson.speaker}</strong>
+      Record your reflection in the Keepsake Box any time to unlock it.
+    </div>`;
+  } else {
+    html += `<div class="video-placeholder" style="margin: 14px 0;">
+      <strong>🎬 No video yet</strong>
+      A short video from ${lesson.speaker} will play here when added.
+    </div>`;
+  }
+  html += `<div class="letter" style="font-size:16px; line-height:1.6; color:var(--ink); font-style:italic; font-family:'Avenir Next','Georgia',serif; margin-bottom:18px;">${lesson.letter}</div>
+    <button class="continue-btn" id="next-btn">Goodnight ✨</button>`;
+  openSheet(html);
+  document.getElementById('next-btn').addEventListener('click', closeSheet);
+}
+
+/* ============ KEEPSAKE BOX MODAL ============ */
+function fmtDate(iso) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  } catch (e) { return ''; }
+}
+
+async function videoExists(lessonId) {
+  // We can't list directory contents from the browser, so try a conventional filename
+  // and a few common ones. Returns first that exists.
+  const candidates = ['daddy.mp4', 'granny.mp4', 'grandad.mp4', 'mummy.mp4', 'family.mp4'];
+  for (const name of candidates) {
+    const url = `keepsakes/videos/${lessonId}/${name}`;
+    try {
+      const r = await fetch(url, { method: 'HEAD' });
+      if (r.ok) return url;
+    } catch (e) { /* ignore */ }
+  }
+  return null;
+}
+
+let expandedLessonId = null;
+
+async function renderKeepsakeBox() {
+  const ks = loadKeepsakes();
+  const totalUnlocks = Object.values(ks).reduce((s, arr) => s + (arr?.length || 0), 0);
+  const uniqueUnlocks = Object.keys(ks).length;
+  let html = `
+    <div class="keepsake-box">
+      <h1>🎁 Arianna's Keepsake Box</h1>
+      <div class="stats">${uniqueUnlocks} of ${LESSONS.length} unlocked · ${totalUnlocks} moments saved</div>
+  `;
+  for (const cat of LESSON_CATEGORIES) {
+    const catLessons = cat.lessons.map(id => LESSONS.find(l => l.id === id)).filter(Boolean);
+    const catUnlocked = catLessons.filter(l => (ks[l.id] || []).length > 0).length;
+    html += `<div class="category-header">
+      <span class="cat-icon">${cat.icon}</span>
+      <span>${cat.name}</span>
+      <span class="cat-count">${catUnlocked} / ${catLessons.length}</span>
+    </div>`;
+    for (const lesson of catLessons) {
+      const entries = ks[lesson.id] || [];
+      const unlocked = entries.length > 0;
+      const isExpanded = expandedLessonId === lesson.id;
+      html += `
+        <div class="lesson-card ${unlocked ? 'unlocked' : 'locked'}" data-lesson="${lesson.id}">
+          <div class="lesson-row">
+            <div class="lesson-icon">${unlocked ? lesson.icon : '🔒'}</div>
+            <div class="lesson-meta">
+              <div class="lesson-name">${lesson.name}</div>
+              <div class="lesson-short">${unlocked ? lesson.short : lesson.hint}</div>
+            </div>
+            ${unlocked ? `<div class="lesson-count">${entries.length}×</div>` : ''}
+          </div>
+          ${isExpanded && unlocked ? `
+            <div class="lesson-detail" id="detail-${lesson.id}">
+              <div class="from">A letter from ${lesson.speaker}</div>
+              <div id="video-area-${lesson.id}">
+                <div class="video-placeholder">
+                  <strong>🎬 Loading…</strong>
+                </div>
+              </div>
+              <div class="letter">${lesson.letter}</div>
+              <div class="reflections-list" id="reflections-${lesson.id}">
+                <div class="label">Your reflections</div>
+                <div id="reflections-body-${lesson.id}" style="font-size:12px;color:var(--ink-soft);">Loading…</div>
+              </div>
+              <div class="earned-list" style="margin-top:10px;">
+                Earned ${entries.length}× · ${entries.slice(-3).map(e => fmtDate(e.at)).join(', ')}${entries.length > 3 ? '…' : ''}
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+  }
+  html += `<button class="continue-btn" id="next-btn" style="margin-top:18px;">Close</button>`;
+  html += `</div>`;
+  openSheet(html);
+
+  // Async-load video status + her reflections for the expanded lesson
+  if (expandedLessonId) {
+    const lesson = LESSONS.find(l => l.id === expandedLessonId);
+    if (lesson) {
+      const reflections = await listReflections(lesson.id);
+      const hasReflection = reflections.length > 0;
+      // VIDEO AREA — gated by reflection
+      const videoArea = document.getElementById('video-area-' + lesson.id);
+      if (videoArea) {
+        if (!hasReflection) {
+          videoArea.innerHTML = `<div class="gated-video-note">
+            <strong>🎁 A message is waiting from ${lesson.speaker}</strong>
+            Record what this lesson means to you, and the message will play.
+            <button class="unlock-btn" id="unlock-${lesson.id}">🎤 Record reflection</button>
+          </div>`;
+          document.getElementById('unlock-' + lesson.id).addEventListener('click', (e) => {
+            e.stopPropagation();
+            startReflectionFlow(lesson.id);
+          });
+        } else {
+          const url = await videoExists(lesson.id);
+          if (url) {
+            videoArea.innerHTML = `<video src="${url}" controls preload="metadata" playsinline></video>`;
+          } else {
+            videoArea.innerHTML = `<div class="video-placeholder">
+              <strong>🎬 No video yet</strong>
+              ${lesson.speaker}'s video will play here once added. Drop a .mp4 in <code>keepsakes/videos/${lesson.id}/</code>
+            </div>`;
+          }
+        }
+      }
+      // REFLECTIONS LIST
+      const refBody = document.getElementById('reflections-body-' + lesson.id);
+      if (refBody) {
+        if (reflections.length === 0) {
+          refBody.innerHTML = `<em>You haven't recorded a reflection yet.</em>`;
+        } else {
+          refBody.innerHTML = reflections.map(r => {
+            const url = URL.createObjectURL(r.blob);
+            return `<div class="reflection-item">
+              <audio src="${url}" controls preload="metadata"></audio>
+              <span class="when">${fmtDate(r.at)}</span>
+            </div>`;
+          }).join('') + `<button class="add-reflection-btn" id="add-ref-${lesson.id}">+ Add another reflection</button>`;
+          document.getElementById('add-ref-' + lesson.id).addEventListener('click', (e) => {
+            e.stopPropagation();
+            startReflectionFlow(lesson.id);
+          });
+        }
+      }
+    }
+  }
+
+  // Wire card interactions
+  sheet.querySelectorAll('.lesson-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      if (e.target.tagName === 'VIDEO' || e.target.tagName === 'AUDIO' || e.target.tagName === 'BUTTON') return;
+      const id = card.dataset.lesson;
+      if (!loadKeepsakes()[id]) return; // locked
+      expandedLessonId = (expandedLessonId === id) ? null : id;
+      renderKeepsakeBox();
+    });
+  });
+  document.getElementById('next-btn').addEventListener('click', () => {
+    expandedLessonId = null;
+    closeSheet();
+  });
+}
+
+document.getElementById('keepsake-btn').addEventListener('click', () => {
+  if (document.getElementById('overlay').classList.contains('open')) return;
+  expandedLessonId = null;
+  renderKeepsakeBox();
+});
+
+document.getElementById('keepsake-toast').addEventListener('click', () => {
+  document.getElementById('keepsake-toast').classList.remove('show');
+  renderKeepsakeBox();
+});
+
+/* ============ INTRO ============ */
+function showWelcome() {
+  openSheet(`
+    <div class="welcome-sheet">
+      <h1>The Lantern Keeper</h1>
+      <div class="subtitle">A quiet place between two islands</div>
+      <div class="intro-text">
+        <p>You are <strong>Wren</strong>, a small fox kit. You have two homes — sunny <strong>Sunmeadow</strong> and quiet <strong>Mistwood</strong>. You travel between them.</p>
+        <p>Your grandmother left you a <strong>lantern</strong> with three small flames inside: <strong>Truth</strong>, <strong>Kindness</strong>, and <strong>Courage</strong>.</p>
+        <p>The flames brighten when you act like the you you want to be. They dim a little when you don't. They never go out.</p>
+        <p style="color:#6B5577; font-size:14px;">Tap people to talk. Tap anywhere to walk. Tap your lantern any time. Cross the bridge with the <strong>🌙 Mistwood</strong> button — you might meet someone on the way. Some days a <strong>🏝 Tideschool</strong> gathering happens at the dock — children from both islands come.</p>
+      </div>
+      <button class="continue-btn" id="next-btn">Begin ✨</button>
+    </div>
+  `);
+  document.getElementById('next-btn').addEventListener('click', () => {
+    state.firstRun = false;
+    saveState();
+    closeSheet();
+  });
+}
+
+/* ============ GOOGLE DRIVE SYNC ============ */
+const GDRIVE_KEY = 'lantern_keeper_gdrive';
+const GDRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+const GDRIVE_FOLDER_NAME = 'Lantern Keeper Backups';
+
+function loadGdrive() {
+  try { return JSON.parse(localStorage.getItem(GDRIVE_KEY) || '{}'); }
+  catch (e) { return {}; }
+}
+function saveGdrive(g) {
+  try { localStorage.setItem(GDRIVE_KEY, JSON.stringify(g)); } catch (e) {}
+}
+
+let _gdriveToken = null;       // { token, expiresAt }
+let _gdriveTokenClient = null;
+let _gdriveFolderId = null;
+
+function gisReady() {
+  return !!(window.google && google.accounts && google.accounts.oauth2);
+}
+
+function getDriveToken(forceConsent) {
+  return new Promise((resolve, reject) => {
+    const g = loadGdrive();
+    if (!g.clientId) return reject(new Error('No Drive client ID configured'));
+    if (!gisReady()) return reject(new Error('Google Sign-In library not loaded yet — try again in a moment'));
+    if (_gdriveToken && _gdriveToken.expiresAt > Date.now() + 60000) {
+      return resolve(_gdriveToken.token);
+    }
+    try {
+      _gdriveTokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: g.clientId,
+        scope: GDRIVE_SCOPE,
+        callback: (resp) => {
+          if (resp.error) return reject(new Error(resp.error_description || resp.error));
+          _gdriveToken = {
+            token: resp.access_token,
+            expiresAt: Date.now() + (resp.expires_in || 3600) * 1000,
+          };
+          resolve(_gdriveToken.token);
+        },
+        error_callback: (err) => {
+          reject(new Error(err.type || 'OAuth failed'));
+        },
+      });
+      _gdriveTokenClient.requestAccessToken({ prompt: forceConsent ? 'consent' : '' });
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+async function driveApi(path, options) {
+  const token = await getDriveToken();
+  const resp = await fetch('https://www.googleapis.com/' + path, {
+    ...options,
+    headers: { ...(options?.headers || {}), Authorization: 'Bearer ' + token },
+  });
+  if (!resp.ok) {
+    const txt = await resp.text();
+    throw new Error(`Drive API ${resp.status}: ${txt.slice(0, 200)}`);
+  }
+  return resp;
+}
+
+async function findOrCreateBackupFolder() {
+  if (_gdriveFolderId) return _gdriveFolderId;
+  // Search for existing folder
+  const q = encodeURIComponent(
+    `mimeType='application/vnd.google-apps.folder' and name='${GDRIVE_FOLDER_NAME}' and trashed=false`
+  );
+  const r = await driveApi(`drive/v3/files?q=${q}&fields=files(id,name)`);
+  const j = await r.json();
+  if (j.files && j.files.length > 0) {
+    _gdriveFolderId = j.files[0].id;
+    return _gdriveFolderId;
+  }
+  // Create folder
+  const c = await driveApi('drive/v3/files?fields=id', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: GDRIVE_FOLDER_NAME,
+      mimeType: 'application/vnd.google-apps.folder',
+    }),
+  });
+  const cj = await c.json();
+  _gdriveFolderId = cj.id;
+  return _gdriveFolderId;
+}
+
+async function findExistingBackupByName(folderId, name) {
+  const q = encodeURIComponent(`name='${name}' and '${folderId}' in parents and trashed=false`);
+  const r = await driveApi(`drive/v3/files?q=${q}&fields=files(id,name)`);
+  const j = await r.json();
+  return (j.files && j.files[0]) ? j.files[0].id : null;
+}
+
+async function uploadBlobToDrive(folderId, filename, blob, existingFileId) {
+  // Multipart upload (metadata + content)
+  const boundary = '-------lantern' + Date.now();
+  const metadata = existingFileId
+    ? { name: filename }
+    : { name: filename, parents: [folderId], mimeType: blob.type || 'application/octet-stream' };
+
+  const head = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n--${boundary}\r\nContent-Type: ${blob.type || 'application/octet-stream'}\r\n\r\n`;
+  const tail = `\r\n--${boundary}--`;
+  const body = new Blob([head, blob, tail], { type: 'multipart/related; boundary=' + boundary });
+
+  const url = existingFileId
+    ? `upload/drive/v3/files/${existingFileId}?uploadType=multipart&fields=id,name,webViewLink`
+    : `upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink`;
+  const r = await driveApi(url, {
+    method: existingFileId ? 'PATCH' : 'POST',
+    headers: { 'Content-Type': 'multipart/related; boundary=' + boundary },
+    body,
+  });
+  return r.json();
+}
+
+async function gdriveSync() {
+  if (!window.JSZip) throw new Error('Backup library not loaded — try again with internet on');
+  // Build the same ZIP as the local export
+  const zip = new JSZip();
+  const today = new Date().toISOString().slice(0, 10);
+  zip.file('README.txt',
+    `Lantern Keeper backup — ${today}\n\nSee README in earlier backups or KEEPSAKE_PROMPTS.md for prompts.\n`
+  );
+  const refs = await listReflections();
+  for (const r of refs) {
+    const ext = (r.mimeType || 'audio/webm').includes('mp4') ? 'm4a' : 'webm';
+    const date = r.at.slice(0, 19).replace(/[:T]/g, '-');
+    const safeLessonId = String(r.lessonId).replace(/[^A-Za-z0-9_-]/g, '_');
+    zip.file(`reflections/${safeLessonId}/${date}.${ext}`, r.blob);
+  }
+  zip.file('keepsakes.json', JSON.stringify(loadKeepsakes(), null, 2));
+  zip.file('state.json', JSON.stringify({
+    state, counters, exportedAt: new Date().toISOString(),
+  }, null, 2));
+  const blob = await zip.generateAsync({ type: 'blob', compression: 'STORE' });
+  const filename = `lantern-keeper-backup-${today}.zip`;
+  const folderId = await findOrCreateBackupFolder();
+  const existing = await findExistingBackupByName(folderId, filename);
+  const result = await uploadBlobToDrive(folderId, filename, blob, existing);
+  const g = loadGdrive();
+  g.lastSyncAt = new Date().toISOString();
+  g.lastSyncFile = filename;
+  g.lastSyncSize = blob.size;
+  g.lastSyncId = result.id;
+  saveGdrive(g);
+  return result;
+}
+
+/* ============ ADMIN PANEL (hidden, long-press day pill) ============ */
+let longPressTimer = null;
+function attachLongPress(el, fn, ms) {
+  ms = ms || 800;
+  let triggered = false;
+  const start = (e) => {
+    triggered = false;
+    longPressTimer = setTimeout(() => {
+      triggered = true;
+      fn();
+    }, ms);
+  };
+  const cancel = () => {
+    if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+  };
+  el.addEventListener('touchstart', start, { passive: true });
+  el.addEventListener('touchend', cancel);
+  el.addEventListener('touchmove', cancel);
+  el.addEventListener('touchcancel', cancel);
+  el.addEventListener('mousedown', start);
+  el.addEventListener('mouseup', cancel);
+  el.addEventListener('mouseleave', cancel);
+}
+
+attachLongPress(document.getElementById('day-pill'), () => {
+  openAdminPanel();
+});
+
+async function openAdminPanel() {
+  const ks = loadKeepsakes();
+  const totalUnlocks = Object.values(ks).reduce((s, arr) => s + (arr?.length || 0), 0);
+  const uniqueUnlocks = Object.keys(ks).length;
+  const refs = await listReflections();
+  const sizeBytes = refs.reduce((s, r) => s + (r.blob?.size || 0), 0);
+  const sizeMB = (sizeBytes / 1024 / 1024).toFixed(2);
+  const canShareFiles = !!(navigator.canShare && navigator.share);
+
+  let html = `<div class="admin-sheet">
+    <h1>🔒 Admin</h1>
+    <div class="subtitle">For Daddy</div>
+
+    <div class="admin-stats">
+      <div class="stat-row"><span class="stat-label">Day</span><span>${state.day}</span></div>
+      <div class="stat-row"><span class="stat-label">Lessons unlocked</span><span>${uniqueUnlocks} / ${LESSONS.length}</span></div>
+      <div class="stat-row"><span class="stat-label">Moments earned</span><span>${totalUnlocks}</span></div>
+      <div class="stat-row"><span class="stat-label">Reflections recorded</span><span>${refs.length}</span></div>
+      <div class="stat-row"><span class="stat-label">Recording storage</span><span>${sizeMB} MB</span></div>
+      <div class="stat-row"><span class="stat-label">Bridges crossed</span><span>${counters.bridgeCrossings || 0}</span></div>
+    </div>
+
+    <div class="admin-section">
+      <h3>Backup</h3>
+      <button class="admin-btn" id="admin-export">
+        <span class="icon">📦</span>
+        <span class="body">Download backup (.zip)
+          <span class="sub">Reflections + all game data, as a single archive</span>
+        </span>
+      </button>
+      ${canShareFiles ? `
+      <button class="admin-btn" id="admin-share">
+        <span class="icon">📤</span>
+        <span class="body">Share to…
+          <span class="sub">Opens iOS/Android share sheet — pick Drive, Mail, etc.</span>
+        </span>
+      </button>` : ''}
+      <div id="gdrive-area"></div>
+      <div id="admin-status"></div>
+    </div>
+
+    <div class="admin-section">
+      <h3>About</h3>
+      <div style="font-size:12px; color:var(--ink-soft); line-height:1.5;">
+        All recordings live only on this device, in browser storage (IndexedDB).
+        Clear browser data for this site, or reinstalling the OS, will erase them.
+        Keep periodic backups.
+      </div>
+    </div>
+
+    <button class="continue-btn" id="admin-close">Close</button>
+  </div>`;
+  openSheet(html);
+
+  document.getElementById('admin-export').addEventListener('click', () => exportBackup('download'));
+  if (canShareFiles) {
+    document.getElementById('admin-share').addEventListener('click', () => exportBackup('share'));
+  }
+  document.getElementById('admin-close').addEventListener('click', closeSheet);
+  renderGdriveArea();
+}
+
+function renderGdriveArea() {
+  const area = document.getElementById('gdrive-area');
+  if (!area) return;
+  const g = loadGdrive();
+  const hasClientId = !!g.clientId;
+  const connected = !!(_gdriveToken && _gdriveToken.expiresAt > Date.now() + 60000);
+  const lastSync = g.lastSyncAt ? new Date(g.lastSyncAt).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' }) : null;
+
+  const isFileProtocol = location.protocol === 'file:';
+  if (!hasClientId) {
+    // Setup state
+    const originBlock = isFileProtocol
+      ? `<div style="background:#FFE9D8; border:1.5px solid #E08838; border-radius:8px; padding:10px 12px; margin-bottom:10px; color:#7A3A0A;">
+          <strong>⚠️ The game is open from a file (<code>file://</code>).</strong><br>
+          Google Drive sync needs a real URL like <code>http://localhost:8765</code>. Open the game through a local server instead — your project has one in <code>.claude/launch.json</code> on port 8765. For Arianna's own device, you'll need to host it (GitHub Pages, Netlify, etc.). Then come back here and continue setup.
+        </div>`
+      : '';
+    area.innerHTML = `
+      <button class="admin-btn" id="gdrive-setup-toggle">
+        <span class="icon">☁️</span>
+        <span class="body">Set up Google Drive sync
+          <span class="sub">~5 min one-time setup, then silent sync forever</span>
+        </span>
+      </button>
+      <div class="gdrive-setup" id="gdrive-setup-block" style="display:none;">
+        ${originBlock}
+        <h4>One-time Google Cloud setup</h4>
+        <ol>
+          <li>Open <a href="https://console.cloud.google.com/projectcreate" target="_blank">Google Cloud Console</a> and create a new project (any name, e.g. "Lantern Keeper").</li>
+          <li>Once created, open <a href="https://console.cloud.google.com/apis/library/drive.googleapis.com" target="_blank">Drive API</a> and click <strong>Enable</strong>.</li>
+          <li>Open <a href="https://console.cloud.google.com/apis/credentials/consent" target="_blank">OAuth consent screen</a> → choose <strong>External</strong>, fill App name "Lantern Keeper", your email, save.</li>
+          <li>Open <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Credentials</a> → <strong>Create Credentials</strong> → <strong>OAuth client ID</strong> → Application type <strong>Web application</strong>.</li>
+          <li>Under <strong>Authorized JavaScript origins</strong> add: <code>${isFileProtocol ? 'http://localhost:8765 (or wherever you end up hosting)' : location.origin}</code><br>
+            <span style="font-size:11px; color:var(--ink-soft);">⚠️ Must be <code>http://</code> or <code>https://</code> — never <code>file://</code>. Add multiple if you host in more than one place.</span>
+          </li>
+          <li>Click Create. Copy the Client ID (ends with <code>.apps.googleusercontent.com</code>).</li>
+          <li>Paste it here:</li>
+        </ol>
+        <input type="text" class="client-id" id="gdrive-client-id-input" placeholder="123456789-abc.apps.googleusercontent.com" />
+        <button class="save-id" id="gdrive-save-id">Save & continue</button>
+      </div>
+    `;
+    document.getElementById('gdrive-setup-toggle').addEventListener('click', () => {
+      const blk = document.getElementById('gdrive-setup-block');
+      blk.style.display = blk.style.display === 'none' ? 'block' : 'none';
+    });
+    document.getElementById('gdrive-save-id').addEventListener('click', () => {
+      const id = document.getElementById('gdrive-client-id-input').value.trim();
+      if (!id || !id.includes('.apps.googleusercontent.com')) {
+        setAdminStatus('That doesn\'t look like a valid Client ID.', 'err');
+        return;
+      }
+      const g2 = loadGdrive();
+      g2.clientId = id;
+      saveGdrive(g2);
+      setAdminStatus('Client ID saved. Tap "Sync to Drive" now to authorise.', 'ok');
+      renderGdriveArea();
+    });
+  } else {
+    // Connected or ready-to-connect state
+    area.innerHTML = `
+      <button class="admin-btn" id="gdrive-sync-btn">
+        <span class="icon">☁️</span>
+        <span class="body">${connected ? 'Sync to Google Drive' : 'Connect & sync to Drive'}
+          <span class="sub">
+            ${lastSync ? `Last sync: ${lastSync} · ${g.lastSyncFile || ''}` : 'Uploads a fresh backup .zip to your Drive'}
+          </span>
+        </span>
+      </button>
+      <div class="gdrive-actions">
+        <button id="gdrive-reset">Forget Client ID</button>
+        <button id="gdrive-reauth">Re-authorise</button>
+      </div>
+    `;
+    document.getElementById('gdrive-sync-btn').addEventListener('click', async () => {
+      if (location.protocol === 'file:') {
+        setAdminStatus('Google Drive sync needs the game to be opened via http(s), not file://. Open it through localhost:8765 or a hosted URL.', 'err');
+        return;
+      }
+      setAdminStatus('Syncing to Drive…');
+      try {
+        const result = await gdriveSync();
+        setAdminStatus(`Synced ${result.name} ✓`, 'ok');
+        renderGdriveArea();
+      } catch (e) {
+        setAdminStatus('Sync failed: ' + (e?.message || e), 'err');
+      }
+    });
+    document.getElementById('gdrive-reset').addEventListener('click', () => {
+      if (!confirm('Forget your saved Client ID? You\'ll need to paste it again.')) return;
+      const g2 = loadGdrive();
+      delete g2.clientId;
+      saveGdrive(g2);
+      _gdriveToken = null;
+      _gdriveFolderId = null;
+      renderGdriveArea();
+      setAdminStatus('Client ID removed.');
+    });
+    document.getElementById('gdrive-reauth').addEventListener('click', async () => {
+      setAdminStatus('Re-authorising…');
+      _gdriveToken = null;
+      try {
+        await getDriveToken(true);
+        setAdminStatus('Re-authorised ✓', 'ok');
+      } catch (e) {
+        setAdminStatus('Auth failed: ' + (e?.message || e), 'err');
+      }
+    });
+  }
+}
+
+function setAdminStatus(msg, kind) {
+  const el = document.getElementById('admin-status');
+  if (!el) return;
+  el.className = 'admin-status' + (kind ? ' ' + kind : '');
+  el.textContent = msg;
+}
+
+async function exportBackup(mode) {
+  setAdminStatus('Preparing backup…');
+  if (!window.JSZip) {
+    setAdminStatus('Backup library not loaded (need internet on first load). Retry online.', 'err');
+    return;
+  }
+  try {
+    const zip = new JSZip();
+    const today = new Date().toISOString().slice(0, 10);
+    // README
+    zip.file('README.txt',
+      `Lantern Keeper backup — ${today}\n\n` +
+      `Folder structure:\n` +
+      `  reflections/Ln/*.webm   Arianna's own voice recordings, grouped by lesson\n` +
+      `  keepsakes.json          Which lessons earned, when, how many times\n` +
+      `  state.json              Game state at backup time\n\n` +
+      `Recordings are standard WebM audio — play in any browser, VLC, etc.\n` +
+      `Drop this whole folder into Google Drive / iCloud / wherever to back up.\n`
+    );
+    // Reflections grouped by lesson
+    const refs = await listReflections();
+    for (const r of refs) {
+      const ext = (r.mimeType || 'audio/webm').includes('mp4') ? 'm4a' : 'webm';
+      const date = r.at.slice(0, 19).replace(/[:T]/g, '-');
+      const safeLessonId = String(r.lessonId).replace(/[^A-Za-z0-9_-]/g, '_');
+      zip.file(`reflections/${safeLessonId}/${date}.${ext}`, r.blob);
+    }
+    // Metadata
+    zip.file('keepsakes.json', JSON.stringify(loadKeepsakes(), null, 2));
+    zip.file('state.json', JSON.stringify({
+      state, counters,
+      exportedAt: new Date().toISOString(),
+      lessons: LESSONS.map(l => ({ id: l.id, name: l.name, speaker: l.speaker })),
+    }, null, 2));
+
+    setAdminStatus('Compressing…');
+    const blob = await zip.generateAsync({ type: 'blob', compression: 'STORE' });
+    const filename = `lantern-keeper-backup-${today}.zip`;
+
+    if (mode === 'share' && navigator.canShare) {
+      const file = new File([blob], filename, { type: 'application/zip' });
+      if (navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: 'Lantern Keeper backup', text: `Lantern Keeper backup ${today}` });
+          setAdminStatus('Shared. ✓', 'ok');
+          return;
+        } catch (e) {
+          if (e?.name === 'AbortError') { setAdminStatus('Share cancelled.'); return; }
+          // fall through to download
+        }
+      }
+    }
+    // Default: download
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    const sizeKB = (blob.size / 1024).toFixed(0);
+    setAdminStatus(`Downloaded ${filename} (${sizeKB} KB) ✓`, 'ok');
+  } catch (e) {
+    setAdminStatus('Backup failed: ' + (e?.message || e), 'err');
+  }
+}
+
+/* ============ INIT ============ */
+renderLocation();
+renderFlames();
+renderDay();
+checkFireflyReward();
+updateKeepsakeBadge();
+checkMilestones();
+if (state.firstRun) {
+  setTimeout(showWelcome, 400);
+}
+
+// Prevent pinch-zoom on iOS
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('dblclick', e => e.preventDefault());
+
+</script>
+</body>
+</html>

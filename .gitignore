@@ -1,0 +1,19 @@
+# Personal family videos — never publish these to a public host
+keepsakes/videos/**/*.mp4
+keepsakes/videos/**/*.mov
+keepsakes/videos/**/*.m4a
+keepsakes/videos/**/*.webm
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Local dev config (machine-specific absolute paths)
+.claude/
+
+# Local dev only — server.js works fine on a host too, but harmless to exclude
+# (commented out — leave server.js in so the same folder runs both ways)
+# server.js
