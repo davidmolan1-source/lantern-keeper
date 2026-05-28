@@ -1996,19 +1996,19 @@ function playScene(scene, onComplete) {
     if (beat.speaker) {
       html += `<div class="speaker">
         <div class="speaker-avatar">${beat.speakerAvatar || ''}</div>
-        <div class="speaker-name">${beat.speaker}</div>
+        <div class="speaker-name">${substituteNames(beat.speaker)}</div>
       </div>`;
     }
     if (beat.narrate) {
-      html += `<p class="narration">${beat.narrate}</p>`;
+      html += `<p class="narration">${substituteNames(beat.narrate)}</p>`;
     }
     if (beat.say) {
-      html += `<p class="dialogue">${beat.say}</p>`;
+      html += `<p class="dialogue">${substituteNames(beat.say)}</p>`;
     }
     if (beat.choices) {
       html += `<div class="choices">`;
       beat.choices.forEach((c, i) => {
-        html += `<button class="choice" data-i="${i}">${c.text}</button>`;
+        html += `<button class="choice" data-i="${i}">${substituteNames(c.text)}</button>`;
       });
       html += `</div>`;
     } else {
@@ -3198,6 +3198,142 @@ function startScene(sceneId, onComplete) {
   }
 }
 
+/* ============ SHARED CLASSMATES (from /api/classmates) ============ */
+// On local dev (server.js mounts friends-helper) this populates with Arianna's real classmates,
+// respecting walkabout's exclusion lists. On GitHub Pages (no backend), it silently falls back
+// to the hardcoded Tideschool kids.
+let _classmatesData = null;
+let _friendStatusData = null;
+let _tideschoolPicksForDay = -1;
+let _tideschoolPicksCache = null;
+
+async function loadSharedClassmates() {
+  try {
+    const r = await fetch('/api/classmates');
+    if (!r.ok) return;
+    _classmatesData = await r.json();
+  } catch (e) { /* no backend — fine */ }
+  try {
+    const r = await fetch('/api/friend-status');
+    if (r.ok) _friendStatusData = await r.json();
+  } catch (e) { /* no backend — fine */ }
+  // If we landed on Tideschool before the data arrived, re-render now to use real names
+  if (state.location === 'tideschool' && _classmatesData) {
+    _tideschoolPicksForDay = -1; // invalidate cache so it recomputes
+    renderLocation();
+  }
+}
+
+function getExclusionSet() {
+  const s = _friendStatusData;
+  const set = new Set();
+  if (!s) return set;
+  const now = Date.now();
+  (s.papaQuarantine || []).forEach(e => set.add(e.nameIndex));
+  (s.kidQuarantine || []).forEach(e => set.add(e.nameIndex));
+  (s.kidNotToday || []).forEach(e => {
+    const exp = typeof e.expiresAt === 'number' ? e.expiresAt : Date.parse(e.expiresAt);
+    if (exp && exp > now) set.add(e.nameIndex);
+  });
+  return set;
+}
+
+function emojiForKid(gender) {
+  const girlSkins = ['👧🏻', '👧🏼', '👧🏽', '👧🏾'];
+  const boySkins  = ['👦🏻', '👦🏼', '👦🏽', '👦🏾'];
+  if (gender === 'g') return girlSkins[Math.floor(Math.random() * girlSkins.length)];
+  if (gender === 'b') return boySkins [Math.floor(Math.random() * boySkins.length)];
+  return '🧒';
+}
+
+// Original script names — order must match Tideschool chars array index
+const TIDESCHOOL_SCRIPT_NAMES = ['Juno', 'Pip', 'Marigold', 'Theo'];
+
+const TIDESCHOOL_PICKS_KEY = 'lk_tideschool_picks';
+
+// Pick 4 real classmates for Tideschool, with gender constraints matching the scripts.
+// Cached per state.day so names are stable within a day (and across page reloads),
+// rotate between days.
+function getTideschoolRealPicks() {
+  if (!_classmatesData?.classmates) return null;
+  if (_tideschoolPicksForDay === state.day && _tideschoolPicksCache) {
+    return _tideschoolPicksCache;
+  }
+  // Try restoring from localStorage so picks survive reloads within the same day
+  try {
+    const saved = JSON.parse(localStorage.getItem(TIDESCHOOL_PICKS_KEY) || 'null');
+    if (saved && saved.day === state.day && Array.isArray(saved.picks) && saved.picks.length === 4) {
+      _tideschoolPicksForDay = saved.day;
+      _tideschoolPicksCache = saved.picks;
+      return saved.picks;
+    }
+  } catch (e) {}
+  const names = _classmatesData.classmates.en || [];
+  const genders = (_classmatesData.genders && _classmatesData.genders.values) || [];
+  const excluded = getExclusionSet();
+  const girls = [], boys = [], any = [];
+  for (let i = 0; i < names.length; i++) {
+    if (excluded.has(i)) continue;
+    const entry = { idx: i, name: names[i], gender: genders[i] || '' };
+    any.push(entry);
+    if (entry.gender === 'g') girls.push(entry);
+    if (entry.gender === 'b') boys.push(entry);
+  }
+  if (girls.length < 2 || boys.length < 1 || any.length < 4) return null;
+  const shuffle = (a) => {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+  shuffle(girls); shuffle(boys); shuffle(any);
+  const used = new Set();
+  const useFrom = (list) => {
+    for (const e of list) {
+      if (!used.has(e.idx)) { used.add(e.idx); return e; }
+    }
+    return null;
+  };
+  // Role gender constraints (script-driven):
+  // Juno = girl, Pip = anyone, Marigold = girl, Theo = boy
+  const slots = [useFrom(girls), useFrom(any), useFrom(girls), useFrom(boys)];
+  if (slots.some(s => !s)) return null;
+  // Strip trailing initial ("Yana S." → "Yana") for friendlier display
+  const picks = slots.map(p => ({
+    name: p.name.replace(/\s+[A-Z]\.$/, ''),
+    emoji: emojiForKid(p.gender),
+  }));
+  _tideschoolPicksCache = picks;
+  _tideschoolPicksForDay = state.day;
+  try { localStorage.setItem(TIDESCHOOL_PICKS_KEY, JSON.stringify({ day: state.day, picks })); } catch (e) {}
+  return picks;
+}
+
+// Returns { Marigold: "RealName", Juno: "RealName", ... } if at Tideschool with real picks, else null.
+function getTideschoolNameMap() {
+  if (state.location !== 'tideschool') return null;
+  const picks = getTideschoolRealPicks();
+  if (!picks) return null;
+  const map = {};
+  for (let i = 0; i < TIDESCHOOL_SCRIPT_NAMES.length; i++) {
+    map[TIDESCHOOL_SCRIPT_NAMES[i]] = picks[i].name;
+  }
+  return map;
+}
+
+// Substitute script kid-names ("Marigold" → "Polina") in any text. Word-boundary safe.
+function substituteNames(text) {
+  if (!text) return text;
+  const map = getTideschoolNameMap();
+  if (!map) return text;
+  let out = text;
+  for (const [orig, real] of Object.entries(map)) {
+    out = out.replace(new RegExp('\\b' + orig + '\\b', 'g'), real);
+  }
+  return out;
+}
+
 /* ============ LOCATIONS ============ */
 const locations = {
   sunmeadow: {
@@ -3287,16 +3423,24 @@ function renderLocation() {
     tsBtn.classList.remove('show');
   }
   document.getElementById('bg-decor').innerHTML = loc.decor;
+  // At Tideschool, optionally swap the four kid characters for Arianna's real classmates
+  // (from walkabout's shared store). Stable within a day; rotates between days.
+  const realPicks = (state.location === 'tideschool') ? getTideschoolRealPicks() : null;
   // Render NPCs
   const npcsEl = document.getElementById('npcs');
-  npcsEl.innerHTML = loc.chars.map(c => `
+  npcsEl.innerHTML = loc.chars.map((c, i) => {
+    const real = realPicks?.[i];
+    const emoji = real?.emoji || c.emoji;
+    const label = real?.name || c.label;
+    return `
     <div class="char bobbing" data-char="${c.id}" data-x="${c.x}"
          style="left:${c.x}%; bottom:${c.bottom}%; font-size:${c.size}px;">
-      ${c.emoji}
-      ${c.label ? `<span class="char-label">${c.label}</span>` : ''}
+      ${emoji}
+      ${label ? `<span class="char-label">${label}</span>` : ''}
       ${c.hint ? `<span class="interact-hint">${c.hint}</span>` : ''}
     </div>
-  `).join('');
+  `;
+  }).join('');
   bindCharTaps();
   // Reset wren to mid-scene for this location
   const wren = document.getElementById('wren');
@@ -4222,6 +4366,7 @@ renderDay();
 checkFireflyReward();
 updateKeepsakeBadge();
 checkMilestones();
+loadSharedClassmates(); // fire-and-forget; re-renders Tideschool if needed when data arrives
 if (state.firstRun) {
   setTimeout(showWelcome, 400);
 }
