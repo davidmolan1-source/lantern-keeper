@@ -858,6 +858,32 @@
   }
   .welcome-sheet .intro-text strong { color: var(--ink); }
 
+  /* Sticky close button for long modals (Keepsake Box, Admin) */
+  .sheet-x {
+    position: sticky;
+    top: -22px;
+    float: right;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1.5px solid #E5DCEA;
+    color: var(--ink-soft);
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 6;
+    box-shadow: 0 2px 10px rgba(60, 30, 80, 0.12);
+    font-family: inherit;
+    margin: -8px -4px 4px 0;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .sheet-x:active { transform: scale(0.9); }
+
   /* ===== KEEPSAKE BOX ===== */
   .keepsake-btn {
     background: linear-gradient(135deg, #F49A8C 0%, #D9696B 100%);
@@ -3216,6 +3242,7 @@ async function renderKeepsakeBox() {
   const uniqueUnlocks = Object.keys(ks).length;
   let html = `
     <div class="keepsake-box">
+      <button class="sheet-x" id="sheet-x" title="Close">✕</button>
       <h1>🎁 Arianna's Keepsake Box</h1>
       <div class="stats">${uniqueUnlocks} of ${LESSONS.length} unlocked · ${totalUnlocks} moments saved</div>
   `;
@@ -3334,6 +3361,8 @@ async function renderKeepsakeBox() {
     expandedLessonId = null;
     closeSheet();
   });
+  const xBtn = document.getElementById('sheet-x');
+  if (xBtn) xBtn.addEventListener('click', () => { expandedLessonId = null; closeSheet(); });
 }
 
 document.getElementById('keepsake-btn').addEventListener('click', () => {
@@ -3560,6 +3589,7 @@ async function openAdminPanel() {
   const canShareFiles = !!(navigator.canShare && navigator.share);
 
   let html = `<div class="admin-sheet">
+    <button class="sheet-x" id="sheet-x" title="Close">✕</button>
     <h1>🔒 Admin</h1>
     <div class="subtitle">For Daddy</div>
 
@@ -3609,6 +3639,8 @@ async function openAdminPanel() {
     document.getElementById('admin-share').addEventListener('click', () => exportBackup('share'));
   }
   document.getElementById('admin-close').addEventListener('click', closeSheet);
+  const xBtn = document.getElementById('sheet-x');
+  if (xBtn) xBtn.addEventListener('click', closeSheet);
   renderGdriveArea();
 }
 
