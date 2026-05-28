@@ -1638,6 +1638,11 @@ const LESSONS = [
     hint: "When someone loves a version of you that isn't quite the whole you.",
     speaker: 'Daddy',
     letter: "Arianna. Today someone praised you for being easy. For being quiet. For making things simple. And you noticed something important — that praise can be a hook. That you don't have to be small to be loved. You can cry. You can stamp. You can want things. You're allowed to take up the space that's yours. You're loved for who you actually are. Always. Love you, Daddy." },
+
+  { id: 'L14', icon: '🕯️', name: 'Love that holds through silence', short: "A voice said 'they don't care' — you knew it wasn't true.",
+    hint: "When someone isn't there and a voice says they don't care.",
+    speaker: 'Daddy',
+    letter: "Arianna. Today a voice told you someone you love had forgotten you, just because they weren't there right that minute. And you knew — you actually knew — that love doesn't disappear when someone isn't reachable. Love stays. It's there in the things they laid out for you. In the fact that they'll come back. Not every silence means gone. Most silences are just life happening. You are held, Arianna. Even when no one is on the phone. Always. Love you, Daddy." },
 ];
 
 // Lessons grouped into categories for the Keepsake Box
@@ -1645,7 +1650,7 @@ const LESSON_CATEGORIES = [
   { id: 'self',       icon: '🌱', name: 'Holding your own',    lessons: ['L1', 'L2', 'L4', 'L8', 'L13'] },
   { id: 'others',     icon: '🤝', name: 'Standing with others', lessons: ['L3', 'L5', 'L6', 'L10'] },
   { id: 'repair',     icon: '🌷', name: 'Repair',               lessons: ['L7', 'L9'] },
-  { id: 'trickier',   icon: '🛡️', name: 'Trickier waters',      lessons: ['L11', 'L12'] },
+  { id: 'trickier',   icon: '🛡️', name: 'Trickier waters',      lessons: ['L11', 'L12', 'L14'] },
   { id: 'milestones', icon: '🏮', name: 'Milestones',           lessons: ['M1', 'M2', 'M3'] },
 ];
 
@@ -2991,6 +2996,92 @@ const scenes = {
       },
     ],
   },
+
+  finn_quiet_lodge: {
+    id: 'finn_quiet_lodge',
+    beats: [
+      {
+        narrateOptions: [
+          "You cross the bridge and walk up the path to Mistwood. The lodge windows are dark. The door is unlocked. Inside, the fire is low but still warm.",
+          "You arrive at the lodge expecting the usual yellow square of light in the window. But the windows are dark tonight. You push the door — it opens. Inside, embers in the hearth, but no Uncle Finn.",
+          "The path to the lodge is quiet. No smoke from the chimney. You push the door open. The fire is down to glowing coals. The lamp is unlit.",
+        ],
+      },
+      {
+        narrateOptions: [
+          "Uncle Finn's tools are on the workbench. His coat is gone. He's not here.",
+          "His knife and a half-carved bird are on the bench. His thick coat is missing from the hook. He's stepped out somewhere.",
+          "His mug is on the side, still half-full. His coat and boots are gone. He's gone out into the evening.",
+        ],
+      },
+      {
+        narrateOptions: [
+          "And then — a small voice in your chest, not quite your own. One you've heard before, somewhere. It says: \"He forgot you were coming. He doesn't really care. If he loved you, he would have been here.\"",
+          "And then a small voice rises up in your chest — not in your own way of thinking. It's a voice you've heard somewhere else. It says: \"He didn't bother to wait for you. He doesn't love you the way you thought.\"",
+          "And then a thought comes — but it doesn't quite feel like your own thought. It sounds borrowed. It says: \"If he really cared, he'd be here. He's forgotten you.\"",
+        ],
+        choices: [
+          {
+            text: "Believe the voice. Sit in the dark, getting smaller.",
+            flames: { truth: -5, courage: -5 },
+            beats: [
+              {
+                narrateOptions: [
+                  "You sit. The voice keeps talking. The fire dies down to ash while you wait. When Uncle Finn finally comes in — arms full of firewood, surprised and apologetic — you're already small. He hugs you, makes you tea, says he should have left a note. But the smallness doesn't quite leave. The voice won today.",
+                  "You let the voice be louder than the warm fire and the laid-out tools. You shrink. By the time Uncle Finn comes back with the wood, you can barely meet his eyes. He apologises and apologises. He notices the smallness. He can't quite reach it.",
+                  "The voice is loud. You believe it. You wait in the dim room and feel forgotten. When Uncle Finn comes home, he tries to make it right — and he does, almost. But the voice planted something. It'll need another day to unpick.",
+                ],
+                flameChange: { truth: -5, courage: -5 },
+              },
+            ],
+          },
+          {
+            text: "Wait quietly. Notice the warm fire. The tools laid out. The food in the pantry.",
+            flames: { kindness: +3, truth: +3 },
+            beats: [
+              {
+                narrateOptions: [
+                  "You sit by the fire. The lodge is full of his everyday things. After a while, footsteps on the path. The door opens — Uncle Finn comes in with firewood, breathless. \"Sorry, sweet one, I lost track of the time.\" He builds the fire up. He was always coming back.",
+                  "You sit. You don't argue with the voice — but you don't agree with it either. You just look around at the things Uncle Finn left behind. The half-carved bird. The mug. After a bit, the door swings open and he's there, apologetic and warm. He was always coming back.",
+                  "You wait. The fire breathes softly. The kettle is set out for tea. You notice the small signs that someone was preparing for you. After a few minutes, you hear him on the path. He comes in, sets down the firewood, ruffles your hair. \"You waited. Good lass.\"",
+                ],
+                flameChange: { kindness: +3, truth: +3 },
+              },
+            ],
+          },
+          {
+            text: "“That voice isn't mine. Uncle Finn loves me. He's just out. The fire's still warm. The tools are still here. Love doesn't have to be loud to be true.”",
+            flames: { truth: +8, kindness: +6, courage: +8 },
+            keepsakes: ['L14'],
+            beats: [
+              {
+                narrateOptions: [
+                  "You say it out loud, even though there's no one to hear. The voice goes quiet. Your lantern glows steady.",
+                  "You say it to the empty room. Naming the voice makes it lose its grip. The lantern at your belt feels warmer than it did a moment ago.",
+                  "You speak it aloud, gently, like setting something down. The voice has nowhere to go. The fire pops in the silence.",
+                ],
+              },
+              {
+                narrateOptions: [
+                  "A few minutes later the door opens. Uncle Finn comes in, smelling of pine, arms full of firewood. He sets it down. Looks at you. \"You look like you've just done something brave.\"",
+                  "Not long after, footsteps. The door opens. Uncle Finn is there, breathless from carrying wood. He stops when he sees your face. \"Something good happened just now, didn't it?\"",
+                  "Soon the door creaks open and Uncle Finn ducks in, his arms full. He sees your steady eyes and pauses. \"You waited well, little one. Better than I would have.\"",
+                ],
+              },
+              {
+                narrateOptions: [
+                  "You nod. He doesn't ask what. He just sits down beside you and starts laying the fire.",
+                  "You nod, just once. He doesn't press. He sits, and you sit, and the fire grows.",
+                  "You nod. He understands without being told. He sits, builds the fire up, and the two of you watch it together.",
+                ],
+                flameChange: { truth: +8, kindness: +6, courage: +8 },
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
 };
 
 function getMarigoldOutcome() {
@@ -3147,7 +3238,7 @@ const locations = {
     `,
     chars: [
       { id: 'moss', emoji: '🐢', label: 'Moss', x: 12, bottom: 22, size: 36, scene: 'moss_wisdom' },
-      { id: 'finn', emoji: '🧔', label: 'Uncle Finn', x: 74, bottom: 36, size: 52, scene: 'finn_loyalty', hint: '💬' },
+      { id: 'finn', emoji: '🧔', label: 'Uncle Finn', x: 74, bottom: 36, size: 52, scenes: ['finn_loyalty', 'finn_quiet_lodge'], hint: '💬' },
     ],
     travelTo: 'sunmeadow',
   },
