@@ -1623,13 +1623,29 @@ const LESSONS = [
   { id: 'M3', icon: '🌉', name: 'Five bridges crossed', short: 'Five trips between Sunmeadow and Mistwood.',
     hint: 'Cross the starlit bridge five times.', milestone: true,
     speaker: 'Daddy', letter: "Hi love. Five times across the bridge now. You know what I notice? You carry yourself both ways. Same Arianna, same lantern, both places. That's the thing nobody can mess with. Love you." },
+
+  { id: 'L11', icon: '📭', name: 'Refusing the messenger', short: "You wouldn't carry a message that wasn't yours to carry.",
+    hint: "When a grown-up asks you to pass words to another grown-up.",
+    speaker: 'a family friend',
+    letter: "Hi Arianna. Today you said no to being a messenger. That's a big thing for a child to know. Grown-ups have their own conversations to have — that's not your work. You're not the postman. You're the kid. Your job is just to be the kid. I'm so proud you knew that. Love you." },
+
+  { id: 'L12', icon: '🔎', name: 'Going to the source', short: "You wouldn't pass on what wasn't yours to spread.",
+    hint: "When someone whispers something about a third person.",
+    speaker: 'an aunt',
+    letter: "Hey Arianna. Today someone whispered something about somebody else, and you didn't pass it on. You went to the source — or you let it stop with you. Most adults can't do that. Words about people shape how others see them. You handled them carefully today. Love you." },
+
+  { id: 'L13', icon: '🌳', name: 'Holding your own shape', short: "Praise asked you to be smaller — you stayed your size.",
+    hint: "When someone loves a version of you that isn't quite the whole you.",
+    speaker: 'Daddy',
+    letter: "Arianna. Today someone praised you for being easy. For being quiet. For making things simple. And you noticed something important — that praise can be a hook. That you don't have to be small to be loved. You can cry. You can stamp. You can want things. You're allowed to take up the space that's yours. You're loved for who you actually are. Always. Love you, Daddy." },
 ];
 
 // Lessons grouped into categories for the Keepsake Box
 const LESSON_CATEGORIES = [
-  { id: 'self',       icon: '🌱', name: 'Holding your own',    lessons: ['L1', 'L2', 'L4', 'L8'] },
+  { id: 'self',       icon: '🌱', name: 'Holding your own',    lessons: ['L1', 'L2', 'L4', 'L8', 'L13'] },
   { id: 'others',     icon: '🤝', name: 'Standing with others', lessons: ['L3', 'L5', 'L6', 'L10'] },
   { id: 'repair',     icon: '🌷', name: 'Repair',               lessons: ['L7', 'L9'] },
+  { id: 'trickier',   icon: '🛡️', name: 'Trickier waters',      lessons: ['L11', 'L12'] },
   { id: 'milestones', icon: '🏮', name: 'Milestones',           lessons: ['M1', 'M2', 'M3'] },
 ];
 
@@ -2701,6 +2717,280 @@ const scenes = {
       },
     ],
   },
+
+  hettie_messenger: {
+    id: 'hettie_messenger',
+    beats: [
+      {
+        speaker: 'Auntie Hettie',
+        speakerAvatar: '👩‍🍳',
+        narrateOptions: [
+          "Hettie kneels by your overnight bag, folding your spare jumper. She pauses with it half-folded.",
+          "Hettie is packing your bag for the trip across the bridge. She tucks a small wrapped sweet inside, then stops, the bag still open.",
+          "Hettie sets down your folded socks and looks up at you, like she's just thought of something.",
+        ],
+      },
+      {
+        speaker: 'Auntie Hettie',
+        speakerAvatar: '👩‍🍳',
+        sayOptions: [
+          "Oh — when you get to Mistwood, will you tell Uncle Finn something for me?",
+          "Actually, can you pass on something to Uncle Finn when you see him?",
+          "While I'm thinking of it — will you take a message to Uncle Finn for me?",
+        ],
+      },
+      {
+        speaker: 'Auntie Hettie',
+        speakerAvatar: '👩‍🍳',
+        sayOptions: [
+          "Tell him I'm still cross about the storm last spring. When he didn't bring back the spare oars I lent him. Tell him I haven't forgotten.",
+          "Tell him I'm still waiting on those oars from last spring. He knows the ones. He's been holding onto them and it's not on. Tell him from me.",
+          "Tell him he owes me for the oars. From the storm. He'll remember. I want him to know I haven't let it go.",
+        ],
+        choices: [
+          {
+            text: "“Okay. I'll tell him.”",
+            flames: { truth: -3, kindness: -3 },
+            beats: [
+              {
+                narrateOptions: [
+                  "Hettie nods, brisk. The message tucks itself somewhere in your chest like a small stone you have to carry. You walk to the bridge slower than usual.",
+                  "She gives you a satisfied pat on the shoulder. But on the walk over, the message sits in your chest like a held breath you can't let out.",
+                  "You agree. Hettie smiles. Across the bridge, you find yourself rehearsing the words. You're going to be carrying them all evening.",
+                ],
+                flameChange: { truth: -3, kindness: -3 },
+              },
+            ],
+          },
+          {
+            text: "“He might be sad if I say that.”",
+            flames: { kindness: -1, truth: +1 },
+            beats: [
+              {
+                speaker: 'Auntie Hettie',
+                speakerAvatar: '👩‍🍳',
+                sayOptions: [
+                  "...You're a tender thing. Alright, I'll think about how to say it myself.",
+                  "Hmm. Well — you do soften people, don't you. Maybe I'll write him a note instead.",
+                  "Oh, sweet of you. Alright, alright. I'll handle it.",
+                ],
+              },
+              {
+                narrateOptions: [
+                  "She means it, mostly. But she doesn't quite let it go.",
+                  "She drops the subject, but you can tell it's still there, waiting for next time.",
+                  "She nods, but the message is still hanging in the room somehow.",
+                ],
+              },
+            ],
+          },
+          {
+            text: "“Auntie Hettie — could you tell him yourself? I'm just visiting him. Not his postman.”",
+            flames: { truth: +6, courage: +6 },
+            keepsakes: ['L11'],
+            beats: [
+              {
+                speaker: 'Auntie Hettie',
+                speakerAvatar: '👩‍🍳',
+                narrateOptions: [
+                  "Hettie blinks. Then sighs. Smiles ruefully.",
+                  "Hettie's hand stops mid-fold. She looks at you for a long moment. Then her face softens.",
+                  "Hettie's eyebrows go up. Then her shoulders drop. She gives a small, real laugh.",
+                ],
+              },
+              {
+                speaker: 'Auntie Hettie',
+                speakerAvatar: '👩‍🍳',
+                sayOptions: [
+                  "...You're right. That's grown-up stuff between me and him. Not for you to carry. Sorry, love.",
+                  "Oh. Yes. That wasn't fair, was it. That's between him and me. I'll sort it.",
+                  "...That's right, isn't it. I had no business making it your job. I'll write to him myself.",
+                ],
+              },
+              {
+                narrateOptions: [
+                  "She finishes folding your jumper without saying any more about it. As you cross the bridge, your bag feels lighter than you remembered.",
+                  "She tucks the last of your things in and zips the bag. The walk to the bridge feels easier than it usually does after a Sunmeadow night.",
+                  "She kisses the top of your head and waves you off. The lantern on your belt hums softly. The wind across the bridge is fresh.",
+                ],
+                flameChange: { truth: +6, courage: +6 },
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+
+  marigold_whisper: {
+    id: 'marigold_whisper',
+    beats: [
+      {
+        narrateOptions: [
+          "Marigold sidles up to you at the edge of the dock, lowering her voice. Her eyes are bright with the thrill of a secret.",
+          "Marigold spots you near the railing and pulls you aside with one hand, conspiratorial. She's almost vibrating with what she's about to say.",
+          "Marigold appears at your elbow, voice already at a whisper. She glances around to check no one's listening.",
+        ],
+      },
+      {
+        speaker: 'Marigold',
+        speakerAvatar: '👧🏼',
+        sayOptions: [
+          "I heard about Juno. My mum told my mum that her parents are splitting up. She's moving in with just her gran. That's why she's so quiet now.",
+          "Did you hear about Juno's family? My cousin's friend said her mum's been in hospital for ages. That's why she's like this. Pass it on.",
+          "I know why Juno's so weird. My sister knows someone who knows them. They had to move because of trouble at her last school. Don't tell her I told you.",
+        ],
+        choices: [
+          {
+            text: "“Oh. Poor Juno. That's so sad.”",
+            flames: { truth: -5, kindness: -3 },
+            beats: [
+              {
+                narrateOptions: [
+                  "Marigold beams. \"I know, right? Pass it on.\" You feel a little gross. You don't actually know if any of that is true.",
+                  "Marigold nods, pleased to have an audience. The story already feels different, repeated. You don't know if it's even real.",
+                  "She squeezes your arm, delighted that you took it. Inside you, something says: I haven't checked. I just received.",
+                ],
+                flameChange: { truth: -5, kindness: -3 },
+              },
+            ],
+          },
+          {
+            text: "“How do you know? Were you there?”",
+            flames: { truth: +3 },
+            beats: [
+              {
+                speaker: 'Marigold',
+                speakerAvatar: '👧🏼',
+                sayOptions: [
+                  "Marigold huffs. \"I just KNOW, okay.\" But the certainty goes out of her voice. She drifts off to find someone less awkward.",
+                  "Marigold rolls her eyes. \"Why are you being weird about it?\" She wanders away, looking for someone who'll just nod.",
+                  "Marigold's smile flickers. \"It's TRUE,\" she says. But she doesn't say it again. She moves on.",
+                ],
+                flameChange: { truth: +3 },
+              },
+            ],
+          },
+          {
+            text: "“I'd rather hear it from Juno if it matters. I don't want to know it from you.”",
+            flames: { truth: +8, kindness: +6, courage: +6 },
+            keepsakes: ['L12'],
+            beats: [
+              {
+                narrateOptions: [
+                  "Marigold blinks. Her secret stops feeling fun. \"Fine. Be like that.\" She walks off — annoyed but not really angry. The story dies on the dock.",
+                  "Marigold's mouth opens, then closes. \"...Okay.\" She shrugs, deflated, and goes to find Theo. The whisper goes nowhere.",
+                  "Marigold goes very quiet for a second. Then she shrugs and walks off. The story stays with her — for now.",
+                ],
+              },
+              {
+                narrateOptions: [
+                  "You don't know if what Marigold said was true. But it wasn't yours to spread either way. The dock smells like seaweed and salt.",
+                  "Maybe what she said was true. Maybe it wasn't. Either way, it wasn't your story to carry. You watch a small boat go past.",
+                  "Whether it was true or not didn't change what you should do with it. You feel quietly pleased with yourself. The sun is warm.",
+                ],
+                flameChange: { truth: +8, kindness: +6, courage: +6 },
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+
+  hettie_easy: {
+    id: 'hettie_easy',
+    beats: [
+      {
+        narrateOptions: [
+          "Hettie tucks the brush away and pulls the blanket up to your chin.",
+          "Hettie smooths your hair one last time and sits down on the edge of the bed.",
+          "The bedside lamp is low. Hettie finishes folding tomorrow's clothes and turns to you.",
+        ],
+      },
+      {
+        speaker: 'Auntie Hettie',
+        speakerAvatar: '👩‍🍳',
+        sayOptions: [
+          "You know what I love most about you?",
+          "Can I tell you what I love about you, little one?",
+          "Sometimes I think about what makes you, you. Do you want to hear?",
+        ],
+      },
+      {
+        speaker: 'Auntie Hettie',
+        speakerAvatar: '👩‍🍳',
+        sayOptions: [
+          "You never make a fuss. Not when you have to leave for Mistwood, not when I'm too tired to play. Other children would cry and stamp. But not you. You're so easy. You make everything easy for me.",
+          "You're so good at not making a fuss. When you have to go, when I'm tired — you just get on with it. Other children would carry on. I really appreciate that you don't.",
+          "You're so quiet about things. You don't ask for much. You're never trouble. Some children, they're so demanding, but you — you just slip in and slip out and never need anything. It's a gift, you know.",
+        ],
+        choices: [
+          {
+            text: "(smile) “I love you too, Auntie.”",
+            flames: { truth: -5, courage: -3 },
+            beats: [
+              {
+                narrateOptions: [
+                  "Hettie beams. She kisses your forehead. As she leaves the room, you have a strange feeling — like you said the right thing but it wasn't quite the true thing.",
+                  "She kisses your forehead, pleased. The light goes out. In the dark, something in you whispers: but I'm not always easy, am I.",
+                  "She squeezes your hand and tucks you in tighter. You smile. But part of you stays awake for a while after the light goes out.",
+                ],
+                flameChange: { truth: -5, courage: -3 },
+              },
+            ],
+          },
+          {
+            text: "(nod, say nothing)",
+            flames: { truth: +2 },
+            beats: [
+              {
+                narrateOptions: [
+                  "Hettie smiles, satisfied. Inside you something small says: but I'm not always easy, am I. The thought stays with you, a little awake when the rest of you wants to sleep.",
+                  "Hettie pats your blanket and turns out the light. In the dark, you turn the words over: easy. Was that praise? Or something else?",
+                  "She kisses your forehead. The thought stays with you in the dark: she loves the part of me that doesn't ask. What about the part that does?",
+                ],
+                flameChange: { truth: +2 },
+              },
+            ],
+          },
+          {
+            text: "“Sometimes I do feel sad when I have to go, Auntie. I just don't always show it. It would be okay if I did, wouldn't it?”",
+            flames: { truth: +8, kindness: +6, courage: +8 },
+            keepsakes: ['L13'],
+            beats: [
+              {
+                speaker: 'Auntie Hettie',
+                speakerAvatar: '👩‍🍳',
+                narrateOptions: [
+                  "Hettie goes still. The blanket-tucking pauses. She looks at you a long moment, like she's seeing something she hadn't quite seen before.",
+                  "Hettie's hand stops. She sits down on the edge of the bed properly, and looks at you carefully.",
+                  "Hettie blinks. The smile fades — not into displeasure, but into something more attentive. She really looks at you.",
+                ],
+              },
+              {
+                speaker: 'Auntie Hettie',
+                speakerAvatar: '👩‍🍳',
+                sayOptions: [
+                  "Oh, sweetheart. Of course it would. I... I'm sorry I made it sound like you had to be easy. You don't. Cry if you need to. Stamp if you need to. I'll still love you.",
+                  "Oh, my love. Of course. Of course it would. I shouldn't have made 'easy' sound like a job. You're allowed to be sad. You're allowed to ask. I love you either way.",
+                  "...Oh. Yes. Of course it would. I'm sorry, sweet one. You don't have to be easy to be loved. Not by me. Not by anyone worth a button.",
+                ],
+              },
+              {
+                narrateOptions: [
+                  "She sits with you a while longer than usual. Your lantern hums very softly.",
+                  "She stays sitting on the edge of the bed, just there, until your eyes get heavy. Your lantern glows warm at the bedside table.",
+                  "She doesn't leave straight away. She holds your hand. The lantern on the windowsill hums a small note, low and steady.",
+                ],
+                flameChange: { truth: +8, kindness: +6, courage: +8 },
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
 };
 
 function getMarigoldOutcome() {
@@ -2833,7 +3123,7 @@ const locations = {
     chars: [
       { id: 'bram', emoji: '🧓', label: 'Old Bram', x: 8, bottom: 32, size: 52, scene: 'bram_net' },
       { id: 'lulu', emoji: '🐐', label: '', x: 38, bottom: 28, size: 36, scene: 'lulu_pet' },
-      { id: 'hettie', emoji: '👩‍🍳', label: 'Auntie Hettie', x: 72, bottom: 36, size: 52, scene: 'hettie_loyalty', hint: '💬' },
+      { id: 'hettie', emoji: '👩‍🍳', label: 'Auntie Hettie', x: 72, bottom: 36, size: 52, scenes: ['hettie_loyalty', 'hettie_messenger', 'hettie_easy'], hint: '💬' },
     ],
     travelTo: 'mistwood',
   },
@@ -2876,7 +3166,7 @@ const locations = {
     chars: [
       { id: 'juno', emoji: '👧🏾', label: 'Juno', x: 12, bottom: 40, size: 38, scene: 'marigold_juno' },
       { id: 'pip', emoji: '🧒🏻', label: 'Pip', x: 36, bottom: 40, size: 38, scene: 'pip_play', hint: '🎨' },
-      { id: 'marigold', emoji: '👧🏼', label: 'Marigold', x: 58, bottom: 40, size: 38, scene: 'marigold_juno', hint: '💬' },
+      { id: 'marigold', emoji: '👧🏼', label: 'Marigold', x: 58, bottom: 40, size: 38, scenes: ['marigold_juno', 'marigold_whisper'], hint: '💬' },
       { id: 'theo', emoji: '👦🏽', label: 'Theo', x: 80, bottom: 40, size: 34, scene: 'theo_quiet' },
     ],
     // travelTo handled specially — returns to lastIsland
@@ -2934,8 +3224,12 @@ function bindCharTaps() {
       await moveWrenTo(standX);
       const hint = el.querySelector('.interact-hint');
       if (hint) hint.style.display = 'none';
-      const sceneId = locations[state.location].chars.find(c => c.id === el.dataset.char)?.scene;
-      if (sceneId) startScene(sceneId);
+      const char = locations[state.location].chars.find(c => c.id === el.dataset.char);
+      // Support both `scenes: [...]` (random pick) and `scene: '...'` (single)
+      const pool = (char?.scenes && char.scenes.length) ? char.scenes : (char?.scene ? [char.scene] : []);
+      if (!pool.length) return;
+      const sceneId = pool[Math.floor(Math.random() * pool.length)];
+      startScene(sceneId);
     });
   });
 }

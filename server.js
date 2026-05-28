@@ -2,6 +2,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const friendsApi = require('../shared/friends-helper');
 
 const ROOT = __dirname;
 const PORT = process.env.PORT ? Number(process.env.PORT) : 8765;
@@ -19,6 +20,8 @@ const MIME = {
 };
 
 http.createServer((req, res) => {
+  if (friendsApi.handleApiRequest(req, res, { allowWrite: false })) return;
+
   let urlPath = decodeURIComponent((req.url || '/').split('?')[0]);
   if (urlPath === '/' || urlPath === '') urlPath = '/index.html';
   const filePath = path.join(ROOT, urlPath);
